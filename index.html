@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <title>SavorSim</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.rawgit.com/donmccurdy/aframe-physics-system/v4.0.1/dist/aframe-physics-system.min.js"></script>
+    <script src="https://unpkg.com/aframe-animation-component@6.2.1/dist/aframe-animation-component.min.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      
+      <a-plane position="0 0 -4" rotation="-90 0 0" width="10" height="10" color="#7BC8A4">
+        <a-box position="0 0 0.5" rotation="0 0 90" width="3" height="6" color="grey">
+          <a-box position="0 0 0.6" rotation="0 0 90" depth="0.15" height="4" width="7">
+            <a-box position="2 1 0.15"
+              color="red"
+              depth="0.15"
+              width="0.15"
+              height="0.15"
+              animation="property:rotation; from: 0 0 0; to: 0 0 360; duration:2000; startEvents:click"></a-box>
+          </a-box>
+        </a-box>
+      </a-plane>
+      <a-sky color="#ECECEC"></a-sky>
+      <a-entity laser-controls="hand: left"></a-entity>
+    </a-scene>
+  </body>
+</html>
