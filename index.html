@@ -1,65 +1,24 @@
 <html>
   <head>
+    <meta http-equiv="cache-control" content="no-cache, must-revalidate, post-check=0, pre-check=0" />
+    <meta http-equiv="cache-control" content="max-age=0" />
+    <meta http-equiv="pragma" content="no-cache" />    
     <title>SavorSim</title>
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.5.0/aframe.js"></script>
     <script>
       delete AFRAME.components["grabbable"];
     </script>
     <script src="https://unpkg.com/aframe-event-set-component@4.2.1/dist/aframe-event-set-component.min.js"></script>
     <script src="https://unpkg.com/super-hands@^3.0.4/dist/super-hands.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.1.0/dist/aframe-physics-system.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
     <script src="https://unpkg.com/aframe-physics-extras/dist/aframe-physics-extras.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.3.3/dist/aframe-environment-component.min.js"></script>
+    <script src="https://rawgit.com/caseyyee/aframe-ui-widgets/master/dist/aframe-ui-widgets.min.js"></script>
+    <script src="https://unpkg.com/aframe-template-component@3.2.1/dist/aframe-template-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-gltf-part-component/dist/aframe-gltf-part-component.min.js"></script>
     
     <script>
-      AFRAME.registerComponent('phase-shift', {
-        init: function () {
-          var el = this.el
-          el.addEventListener('gripdown', function () {
-            el.setAttribute('collision-filter', {collisionForces: true})
-            console.log("debug");
-          })
-          el.addEventListener('gripup', function () {
-            el.setAttribute('collision-filter', {collisionForces: false})
-            console.log("debug");
-          })
-        }
-      });
-      AFRAME.registerComponent('knob-turn', {
-        init: function () {
-          var el = this.el;
-          var knobId = el.getAttribute('id');
-          var burnerIndex = knobId[knobId.length - 1];
-          
-          el.addEventListener('grab-start', function () {
-            var currentRotation = el.getAttribute('rotation');
-            if (currentRotation.x === 0 && currentRotation.y === 0 && currentRotation.z === 0) {
-              el.setAttribute('animation', {
-                property: 'rotation',
-                from: '0 0 0',
-                to: '0 180 0',
-                loop: false,
-                dur: 1000
-              });
-              el.addEventListener('animationcomplete', function () {
-                this.emit('hot', { index: burnerIndex });
-              });
-            }
-            else {
-              el.setAttribute('animation', {
-                property: 'rotation',
-                from: '0 180 0',
-                to: '0 0 0',
-                loop: false,
-                dur: 1000
-              });
-              el.addEventListener('animationcomplete', function () {
-                this.emit('cold', { index: burnerIndex });
-              });
-            }
-          });
-        }
-      });
       AFRAME.registerComponent('on-off', {
         init: function () {
           var el = this.el;
@@ -86,35 +45,230 @@
           });
         }
       });
+
       AFRAME.registerComponent('add-body', {
+        schema: {
+          bodyType: { default: 'static', oneOf: ['static', 'dynamic'] },
+          shape: {default: 'auto', oneOf: ['auto', 'box', 'cylinder', 'sphere', 'hull', 'mesh', 'none']},
+        },
+
         init: function() {
-          var el= this.el;
+          var el = this.el;
+          var bodyType = this.data.bodyType;
+          var shape = this.data.shape;
           
-          el.addEventListener('model-loaded', function () {
-            el.setAttribute('static-body', '');
+          el.addEventListener('model-loaded', function (event) {
+            if (bodyType == 'static') {
+              el.setAttribute('static-body', 'shape: ' + shape);
+            } else if (bodyType == 'dynamic') {
+              el.setAttribute('dynamic-body', 'shape: ' + shape);
+            }
+          });
+          
+        }
+      });
+
+      AFRAME.registerComponent('collision-handler', {
+        init: function () {
+          var el = this.el;
+          var sceneEl = document.querySelector('a-scene');
+          var tomato = document.getElementById("#tomato");
+          var tomatoSlices = document.getElementsByClassName("tomato-slice");
+          el.addEventListener('collide', function collision (event) {
+            var collidedEntity = event.detail.body.el;
+              if (collidedEntity.id === '#tomato') {
+                const initialPosX = tomato.getAttribute("position").x;
+                const initialPosY = tomato.getAttribute("position").y;
+                const initialPosZ = tomato.getAttribute("position").z;
+                tomato.body.position.set(20, 2, -20);
+                var offset = -0.25;
+                for (var i = 0; i < tomatoSlices.length; i++) {
+                  //console.log("Slice:", tomatoSlices[i]);
+                  tomatoSlices[i].body.position.set(initialPosX + offset, initialPosY + 0.1, initialPosZ);
+                  tomatoSlices[i].body.quaternion.set(tomato.body.quaternion.x, tomato.body.quaternion.y, tomato.body.quaternion.z, tomato.body.quaternion.w);
+                  offset += 0.25;
+                }
+                el.removeEventListener('collide', collision);
+              }
+
+          });
+        },
+      });
+
+      AFRAME.registerComponent('change-scene', {
+        schema: {
+          scene: { type: 'string', oneOf: ['scene1', 'scene2']},
+        },
+
+        init: function () {
+          var el = this.el;
+          var sceneSelector = document.getElementById('scene-selector');
+          var path = 'src/scenes/' + this.data.scene + '.html';
+          el.addEventListener('pressed', function () {
+            sceneSelector.setAttribute('template', 'src', path);
           });
         }
       });
+
+      AFRAME.registerComponent('knob-turn', {
+        schema: {
+          burner: {type: 'string', oneOf: ['#burner0', '#burner1', '#burner2', '#burner3']}
+        },
+
+        init: function () {
+          var el = this.el;
+          var burner = document.getElementById(this.data.burner);
+          var target = document.getElementById("#target");
+
+          el.addEventListener('change', function (event) {
+            var value = event.detail.value * 360 * Math.PI;
+            
+            el.setAttribute('rotation', {
+              y: (el.getAttribute('rotation').y + value) % 360
+            });
+            //console.log(el.getAttribute('rotation').y);
+            if (el.getAttribute('rotation').y > 0 && el.getAttribute('rotation').y <= 90){
+              
+              burner.setAttribute('animation', {
+                property: 'color',
+                from: el.getAttribute('color'),
+                to: '#880000',
+                dur: 2000
+              });
+            }
+            else if (el.getAttribute('rotation').y > 90 && el.getAttribute('rotation').y <= 180) {
+              burner.setAttribute('animation', {
+                property: 'color',
+                from: el.getAttribute('color'),
+                to: '#FF0000',
+                dur: 2000
+              });
+            }
+            else {
+              burner.setAttribute('animation', {
+                property: 'color',
+                from: el.getAttribute('color'),
+                to: '#000000',
+                dur: 2000
+              });
+            }
+          });
+        }
+      });
+      AFRAME.registerComponent('cannon-body', {
+
+        init: function () {
+          var el= this.el;
+
+          el.addEventListener('body-loaded', function (event) {
+            var body = event.detail.body;
+            console.log(body);
+            var boxShape = new CANNON.Box(new CANNON.Vec3(0.01, 0.63, 0.5));
+            body.shapes = [boxShape];
+            body.shapeOffsets = [new CANNON.Vec3(0, 0, 0)];
+          });
+        }
+      })
+
+      AFRAME.registerComponent('change-slides', {
+
+        init: function () {
+          var el= this.el;
+          var frame = document.getElementById("#frame");
+          var img = document.getElementsByTagName('img');
+          el.addEventListener('change', function (event) {
+            var value = event.detail.value;
+            if (value < 0) {
+              value = Math.max(value, 0.01);
+            }
+            else if (value > 0) {
+              value = Math.min(value, 3.99);
+            }
+            console.log(value);
+            frame.setAttribute('src', '#' + img[Math.trunc(value)].id);
+          });
+        }
+      })
+
+      AFRAME.registerComponent('plating', {
+
+        init: function () {
+          var el= this.el;
+          this.foods = document.getElementsByClassName("food");
+          
+        },
+        
+        tick: function(time, timeDelta) {
+          var offset = 0.1;
+          this.ok = 0;
+
+          function sortByYPosition(collection) {
+            return Array.from(collection).sort((entityA, entityB) => {
+              const posA = entityA.object3D.position.y;
+              const posB = entityB.object3D.position.y;
+              return posA - posB;
+            });
+          }
+
+          this.foods = sortByYPosition(this.foods);
+
+          for (var i = 0; i < this.foods.length - 1; i++) {
+
+            if (Math.abs(this.foods[i+1].body.position.y - this.foods[i].body.position.y) > this.getYDimension(this.foods[i].object3D) + this.getYDimension(this.foods[i+1].object3D) + offset) {
+              this.ok = 1;
+              break;
+            }
+          }
+          //console.log(ok);
+          if (this.ok == 0) {
+            console.log("in contact");
+          } else {
+            console.log("not in contact");
+          }
+        },
+
+        getYDimension: function (object3d) {
+          var box = new THREE.Box3().setFromObject( object3d );
+          var y = (box.max.y - box.min.y) / 2;
+          return y;
+        },
+      })
+
     </script>
+    
+    <!--script src="./src/index.js"></script-->
   </head>
   <body>
-    <a-scene physics>
+    <a-scene physics="debug: true;">
       <a-assets>
-        <a-asset-item id="knob-gltf" src="assets/models/knob.gltf"></a-asset-item>
+        <a-asset-item id="basket-gltf" src="assets/models/basket.gltf"></a-asset-item>
+        <a-asset-item id="knife-gltf" src="assets/models/knife2.gltf"></a-asset-item>
+        <a-asset-item id="kitchen-gltf" src="assets/models/kitchen2.gltf"></a-asset-item>
+        <a-asset-item id="sandwich-gltf" src="assets/models/SANDWICH_REVAMPED.gltf"></a-asset-item>
         <a-asset-item id="knob-obj" src="assets/models/knob.obj"></a-asset-item>
-        <a-asset-item id="knob-mtl" src="assets/models/knob.mtl"></a-asset-item> 
+        <a-asset-item id="knob-mtl" src="assets/models/knob.mtl"></a-asset-item>
+        <a-asset-item id="tomato-fbx" src="assets/models/tomato.fbx"></a-asset-item>
+        <a-asset-item id="tomato-gltf" src="assets/models/tomato.gltf"></a-asset-item>
+        <a-asset-item id="tomato-slice-fbx" src="assets/models/tomato-slice.fbx"></a-asset-item>
+        <a-asset-item id="chilly-fbx" src="assets/models/chilly.fbx"></a-asset-item>
+        <a-asset-item id="banana-fbx" src="assets/models/banana.fbx"></a-asset-item>
+        <a-asset-item id="carrot-fbx" src="assets/models/carrot.fbx"></a-asset-item>
+        <img id="visitor0" src="assets/images/visitor_1.png">
+        <img id="visitor1" src="assets/images/visitor_2.png">
+        <img id="visitor2" src="assets/images/visitor_3.png">
+        <img id="visitor3" src="assets/images/visitor_4.png">
 
         <a-mixin id="interactable"
           class="interactable"
           hoverable grabbable draggable
-          event-set__hoveron="_event: hover-start; material.opacity: 0.7; transparent: true"
+          event-set__hoveron="_event: hover-start; material.opacity: 0.8; transparent: true"
           event-set__hoveroff="_event: hover-end; material.opacity: 1; transparent: false"
         ></a-mixin>
         <a-mixin
           id="physics-hand"
-          physics-collider phase-shift
-          collision-filter="collisionForces: false"
-          static-body="shape: sphere; sphereRadius: 0.02"
+          physics-collider
+          collision-filter="collisionForces: true"
+          static-body="shape: sphere; sphereRadius: 0.03"
           super-hands="colliderEvent: collisions;
                       colliderEventProperty: els;
                       colliderEndEvent: collisions;
@@ -128,49 +282,56 @@
         <a-mixin id="burner"
           geometry="primitive: cylinder; height: 0.1; radius: 1"
           material="color: black"
-          scale="0.25 0.25 0.25">
+          scale="0.33 0.33 0.33">
         </a-mixin>
-        
+        <a-mixin id="tomato"
+          gltf-model="#tomato-gltf"
+          add-body="bodyType: dynamic"
+          scale="0.0025 0.0025 0.0025">
+        </a-mixin>
+        <a-mixin id="chilly"
+          fbx-model="src: assets\models\chilly.fbx"
+          add-body="bodyType: dynamic"
+          scale="0.01 0.01 0.01">
+        </a-mixin>
+        <a-mixin id="banana"
+          fbx-model="src: assets\models\banana.fbx"
+          add-body="bodyType: dynamic"
+          scale="0.004 0.004 0.004">
+        </a-mixin>
+        <a-mixin id="carrot"
+          fbx-model="src: assets\models\carrot.fbx"
+          add-body="bodyType: dynamic"
+          scale="0.0025 0.0025 0.0025">
+        </a-mixin>
+        <a-mixin id="tomato-slice"
+          fbx-model="src: assets\models\tomato-slice.fbx;"
+          add-body="bodyType: dynamic"
+          scale="0.002 0.002 0.002">
+        </a-mixin>
+        <a-mixin id="cube"
+          geometry="primitive: box; width: 0.5; height: 0.5; depth: 0.5">
+        </a-mixin>
       </a-assets>
 
-      <a-entity>
-        <a-entity id="#rhand" mixin="physics-hand" hand-controls="hand: right"></a-entity>
-        <a-entity id="#lhand" mixin="physics-hand" hand-controls="hand: left"></a-entity>
-      </a-entity>
-
-      <a-entity position="0 0 3" rotation="0 0 0">
-        <a-camera look-controls>
+      <a-entity id="#camera-rig" position="0 0 3" rotation="0 0 0">
+        <a-camera id="#head" look-controls wasd-controls>
           <a-cursor raycaster="objects: .interactable"
             fuse="true"
-            fuseTimeout="500"
+            fusetimeout="500"
             position="0 0 -1"
             geometry="primitive: ring; radiusInner: 0.005; radiusOuter: 0.006"
             material="color: black; shader: flat">
           </a-cursor>
         </a-camera>
+        <a-entity id="#rhand" mixin="physics-hand" hand-controls="hand: right"></a-entity>
+        <a-entity id="#lhand" mixin="physics-hand" hand-controls="hand: left"></a-entity>
       </a-entity>
 
-      <a-box id="#backwall" position="-7.5 1.5 0" width="1" height="3" depth="15" color="white"></a-box>
-      <a-box id="#leftwall" position="7.5 1.5 0" width="1" height="3" depth="15" color="white"></a-box>
-      <a-box id="#rightwall" position="0 1.5 -7.5" width="15" height="3" depth="1" color="white"></a-box>
-      <a-box id="#frontwall" position="0 4.5 7.5" width="15" height="3" depth="1" color="white"></a-box>
-      <a-box static-body id="#table" position="0 0.25 -2.5" width="5" depth="3" height="0.5" color="grey">
-        <a-box id="#table-top" position="0 0.325 0"  width="6" depth="3.5" height="0.15" color="grey"></a-box>
-      </a-box>
-      <a-entity position="-1 0.65 -2" >
-        <a-entity id="#knob0" mixin="interactable knob" position="0.5 0 0"></a-entity>
-        <a-entity id="#knob1" mixin="interactable knob" position="0.5 0 -1" ></a-entity>
-        <a-entity id="#knob2" mixin="interactable knob" position="-1.5 0 0"></a-entity>
-        <a-entity id="#knob3" mixin="interactable knob" position="-1.5 0 -1" > </a-entity>
-        <a-cylinder id="#burner0" class="burner" mixin="burner" position="0 0 0"></a-cylinder>
-        <a-cylinder id="#burner1" class="burner" mixin="burner" position="0 0 -1"></a-cylinder>
-        <a-cylinder id="#burner2" class="burner" mixin="burner" position="-1 0 0"></a-cylinder>
-        <a-cylinder id="#burner3" class="burner" mixin="burner" position="-1 0 -1"></a-cylinder>
-      </a-entity>
-
-      <a-plane static-body material="color: #7BC8A4" position="0 -0.01 0" rotation="-90 0 0" scale="1000 1000 1" ></a-plane>
+      <a-entity id="scene-selector" template="src: src/scenes/scene1.html"></a-entity>
       
-      <a-sky color="#ECECEC"></a-sky>
+      <a-plane static-body rotation="90 0 0" geometry="width: 100; height: 100" scale="1000 1000 1000"></a-plane>
+      <a-entity environment></a-entity>
     </a-scene>
     
   </body>
