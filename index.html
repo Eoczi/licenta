@@ -318,12 +318,30 @@
         }
       });
 
+      AFRAME.registerComponent('move-camera', {
+        init: function () {
+          this.el.addEventListener('thumbstickmoved', this.moveCamera.bind(this));
+        },
+
+        moveCamera: function (event) {
+          const { x, y } = event.detail;
+          const camera = document.querySelector('#head');
+          const rotation = camera.getAttribute('rotation');
+          const newRotation = {
+            x: rotation.x + y * 5,
+            y: rotation.y + x * 5,
+            z: 0
+          };
+          camera.setAttribute('rotation', newRotation);
+        }
+      });
+
     </script>
     
     <!--script src="./src/index.js"></script-->
   </head>
   <body>
-    <a-scene physics="debug: true;">
+    <a-scene physics="debug: true;" oculus-go-controls>
       <a-assets>
         <a-asset-item id="basket-gltf" src="assets/models/basket.gltf"></a-asset-item>
         <a-asset-item id="knife-gltf" src="assets/models/knife2.gltf"></a-asset-item>
@@ -399,7 +417,7 @@
       </a-assets>
 
       <a-entity id="#camera-rig" position="0 0 3" rotation="0 0 0">
-        <a-camera id="#head" look-controls wasd-controls move-camera>
+        <a-camera id="#head" look-controls hand-controls move-camera>
           <a-cursor raycaster="objects: .interactable"
             fuse="true"
             fusetimeout="500"
