@@ -194,13 +194,15 @@
 
         init: function () {
           var el= this.el;
-          this.foods = document.getElementsByClassName("food");
-          
+          el.foods = document.getElementsByClassName("food");
         },
         
         tick: function(time, timeDelta) {
+          var el= this.el;
           var offset = 0.1;
-          this.ok = 0;
+          var foods = this.foods;
+          var ok = el.ok;
+          ok = 0;
 
           function sortByYPosition(collection) {
             return Array.from(collection).sort((entityA, entityB) => {
@@ -210,17 +212,20 @@
             });
           }
 
-          this.foods = sortByYPosition(this.foods);
+          foods = sortByYPosition(foods);
 
-          for (var i = 0; i < this.foods.length - 1; i++) {
+          if (Math.abs(this.el.body.position.y - foods[0].body.position.y) > this.getYDimension(this.el.object3D) + this.getYDimension(foods[0].object3D) + offset) {
+            ok = 1;
+          }
 
-            if (Math.abs(this.foods[i+1].body.position.y - this.foods[i].body.position.y) > this.getYDimension(this.foods[i].object3D) + this.getYDimension(this.foods[i+1].object3D) + offset) {
-              this.ok = 1;
+          for (var i = 0; i < foods.length - 1; i++) {
+            if (Math.abs(foods[i+1].body.position.y - foods[i].body.position.y) > this.getYDimension(foods[i].object3D) + this.getYDimension(foods[i+1].object3D) + offset) {
+              ok = 1;
               break;
             }
           }
-          //console.log(ok);
-          if (this.ok == 0) {
+
+          if (ok == 0) {
             console.log("in contact");
           } else {
             console.log("not in contact");
@@ -228,11 +233,90 @@
         },
 
         getYDimension: function (object3d) {
-          var box = new THREE.Box3().setFromObject( object3d );
+          var box = new THREE.Box3().setFromObject(object3d);
           var y = (box.max.y - box.min.y) / 2;
           return y;
         },
       })
+
+      AFRAME.registerComponent('cuttable', {
+        
+        init: function() {
+          var el = this.el;
+          el.collided = 3;
+          el.startTimer = 0;
+          el.widthOffset = el.firstElementChild.getAttribute('geometry').width;
+
+          el.addEventListener('collide', function collision(event) {
+            var collidedEntity = event.detail.body.el;
+            // console.log(collidedEntity)
+            if (el.collided == 3 && collidedEntity.id == "#knife") {
+              el.collided = 0;
+              el.removeEventListener('collide', collision);
+            }
+            
+          });
+        },
+
+        tick: function(time, timeDelta) {
+          var el = this.el;
+          var sceneEl = document.getElementById("scene-selector");
+          var cutEntity = el.firstElementChild;
+          var cutEntityCopy = cutEntity.cloneNode(true);
+          var shapeEls = el.children;
+
+          switch (el.collided) {
+            case 0:
+              var newPos = { x: el.body.position.x + el.widthOffset * shapeEls.length / 2 + 0.1, y: el.body.position.y + 0.1 , z: el.body.position.z}
+              
+              el.removeChild(cutEntity);
+              console.log(el.body.quaternion)
+              cutEntityCopy.object3D.quaternion.copy(el.body.quaternion);
+              cutEntityCopy.setAttribute('position', newPos);
+              cutEntityCopy.setAttribute('dynamic-body', "shape: auto; mass: 5");
+              sceneEl.append(cutEntityCopy);
+              if (shapeEls.length == 0) {
+                el.parentNode.removeChild(el);
+                break;
+              }
+
+              el.removeAttribute('dynamic-body');
+              el.removeAttribute('body-merger');
+              el.collided = 1;
+              break;
+            case 1:
+              
+              for (var i = 0; i < shapeEls.length; i++) {
+                var shape = shapeEls[i];
+                var x = -((shapeEls.length - 1) * el.widthOffset) / 2 + i * el.widthOffset;
+                shape.setAttribute('position', {x: x, y: 0, z: 0});
+              }
+              el.setAttribute('dynamic-body', 'shape: auto; mass: 5;');
+              el.setAttribute('body-merger');
+
+              el.startTimer = time;
+              el.collided = 2;
+              break;
+            case 2:
+              if (time - el.startTimer > 2000 && el.startTimer != 0) {
+                console.log(el.children);
+                console.log(el);
+                el.addEventListener('collide', function collision(event) {
+                  var collidedEntity = event.detail.body.el;
+                  
+                  if (el.collided == 3 && collidedEntity.id == "#knife") {
+                    console.log(collidedEntity.body.material);
+                    el.collided = 0;
+                    el.removeEventListener('collide', collision);
+                  }
+                });
+                el.collided = 3;
+                el.startTimer = 0;
+              }
+              break;
+          }
+        }
+      });
 
     </script>
     

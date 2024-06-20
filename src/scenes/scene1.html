@@ -16,27 +16,59 @@
     <a-cylinder id="#burner2" class="burner" mixin="burner" position="-1 0 0" ></a-cylinder>
     <a-cylinder id="#burner3" class="burner" mixin="burner" position="-1 0 -1"></a-cylinder>
 </a-entity>
-<a-entity id="#kitchen" gltf-model="#kitchen-gltf" scale="0.1 0.05 0.1" position="0 0.07 -3"></a-entity>
+<a-entity id="#kitchen" gltf-model="#kitchen-gltf" scale="0.1 0.05 0.1" position="0 0.07 -3">
 
-<a-box id="#food0" class="food" mixin="interactable" geometry="height: 0.25" dynamic-body position="0 2 0"></a-box>
+</a-entity>
+<a-entity id="#kitchen-body" position="0 0.07 -3">
+    <a-box visible="false" static-body geometry="width: 6.53; depth: 1.81" position="-2.09 0.45085 -4.25387"></a-box>
+    <a-box visible="false" static-body geometry="width: 6.33; height: 0.84; depth: 0.91" position="-2 2.2 -4.69305"></a-box>
+    <a-box visible="false" static-body geometry="width: 1.32; height: 0.88; depth: 6.5" position="-4.5 2.2 -1.89"></a-box>
+    <a-box visible="false" static-body geometry="width: 2; depth: 6.6" position="-4.25 0.44986 -1.87968"></a-box>
+    <a-box visible="false" static-body geometry="width: 1.36; depth: 1.8; height: 1.7" position="0.49937 1.79327 -4.2595"></a-box>
+    <a-box visible="false" static-body geometry="width: 11.76; depth: 0.28; height: 3.3" position="0.48163 1.62952 -5.31212"></a-box>
+    <a-box visible="false" static-body geometry="width: 0.3; depth: 11; height: 3.3" position="-5.24543 1.63 0.0963"></a-box>
+</a-entity>
+
+<!-- <a-box id="#food0" class="food" mixin="interactable" geometry="height: 0.25" dynamic-body position="0 2 0"></a-box>
 <a-box id="#food1" class="food" mixin="interactable" geometry="height: 0.25" dynamic-body position="0 2.5 0"></a-box>
 <a-box id="#food2" class="food" mixin="interactable" geometry="height: 0.25" dynamic-body position="0 3 0"></a-box>
 <a-box id="#food3" class="food" mixin="interactable" geometry="height: 0.25" dynamic-body color="red" position="0 3.5 0"></a-box>
-<a-box id="#plate" plating geometry="width: 1.5; height: 0.05; depth: 1.5" position="0 1 0" dynamic-body></a-box>
+<a-box id="#plate" plating geometry="width: 1.5; height: 0.05; depth: 1.5" position="0 1 0" dynamic-body></a-box> -->
 
 <!-- <a-entity id="#carrot" mixin="carrot interactable" position="1.85 1.5 -2"></a-entity> -->
 <!-- <a-entity id="#chilly" mixin="chilly interactable" position="1.25 4 -2" ></a-entity> -->
 <!-- <a-entity id="#tomato" mixin="tomato interactable" position="2.25 1.5 -2"></a-entity> -->
 
-<!-- <a-box mixin="interactable"
+<a-box mixin="interactable"
     geometry="width: 0.01; height: 1.25; depth: 1" 
-    position="0 1.5 -2" rotation="0 -90 0"  
+    position="0 3 0" rotation="0 -90 0"  
     color="brown"
-    static-body cannon-body>
+    dynamic-body cannon-body>
     <a-box id="#frame" position="0.005 0 0.1" geometry="width: 0.01; height: 1; depth: 0.75" src="#visitor0"></a-box>
     <a-entity position="0.01 0 -0.375" ui-slider="size: 1; max: 4; value: 0" change-slides rotation="0 0 -90" scale="1 1 1"></a-entity>
-</a-box> -->
+</a-box>
 
+<a-entity mixin="interactable" dynamic-body body-merger cuttable position="0 1 0">
+    <a-box geometry="width: 1;" position="0.6 0 0"></a-box>
+    <a-box geometry="width: 1;" position="0.2 0 0"></a-box>
+    <a-box geometry="width: 1;" position="-0.2 0 0"></a-box>
+    <a-box geometry="width: 1;" position="-0.6 0 0"></a-box>
+</a-entity>
+
+<a-entity mixin="interactable" dynamic-body="shape: sphere" body-merger cuttable position="10 1 0">
+    <a-sphere radius="0.9" color="red" theta-start="0" theta-length="50"></a-sphere>
+    <a-sphere radius="0.9" color="orange" theta-start="50" theta-length="20"></a-sphere>
+    <a-sphere radius="0.9" color="yellow" theta-start="70" theta-length="20"></a-sphere>
+    <a-sphere radius="0.9" color="green" theta-start="90" theta-length="20"></a-sphere>
+    <a-sphere radius="0.9" color="purple" theta-start="110" theta-length="20"></a-sphere>
+    <a-sphere radius="0.9" color="blue" theta-start="130" theta-length="50"></a-sphere>
+
+    <!-- <a-sphere radius="1" color="blue" theta-start="120" theta-length="30"></a-sphere>
+    <a-sphere radius="1" color="purple" theta-start="150" theta-length="30"></a-sphere> -->
+</a-entity>
+<a-sphere position="3 2 0"></a-sphere>
+
+<a-box id="#knife" mixin="interactable" dynamic-body scale="0.25 0.25 1" position="4 2 0"></a-box>
 <!-- <a-entity mixin="tomato-slice interactable" class="tomato-slice" position="0 1.6 0"></a-entity>
 <a-entity mixin="tomato-slice interactable" class="tomato-slice" position="0 1.5 0"></a-entity>
 <a-entity mixin="tomato-slice interactable" class="tomato-slice" position="0 1.3 0"></a-entity> -->
