@@ -1,0 +1,24 @@
+<a-box id="#backwall" position="-7.5 1.5 0" width="1" height="3" depth="15" color="white"></a-box>
+<a-box id="#leftwall" position="7.5 1.5 0" width="1" height="3" depth="15" color="white"></a-box>
+<a-box id="#rightwall" position="0 1.5 -7.5" width="15" height="3" depth="1" color="white"></a-box>
+<!-- <a-box id="#frontwall" position="0 4.5 7.5" width="15" height="3" depth="1" color="white"></a-box> -->
+<a-box static-body id="#table" position="0 0.25 -2.5" width="5" depth="3" height="0.5" color="grey">
+    <a-box id="#table-top" position="0 0.325 0"  width="6" depth="3.5" height="0.15" color="grey"></a-box>
+</a-box>
+<!--a-entity id="basket" gltf-model="#basket-gltf" position="0 1 -2" scale="0.05 0.05 0.05" add-body="bodyType: dynamic"></a-entity-->
+<a-box id="#knife" gltf-model="#knife-gltf" position="0.5 2 -2" add-body="bodyType: dynamic" mixin="interactable" collision-handler scale="2.5 2.5 2.5"></a-box>
+<a-entity position="-1 0.65 -2" >
+    <a-entity id="#knob0" mixin="interactable knob" position="0.5 0 0"></a-entity>
+    <a-entity id="#knob1" mixin="interactable knob" position="0.5 0 -1" ></a-entity>
+    <a-entity id="#knob2" mixin="interactable knob" position="-1.5 0 0"></a-entity>
+    <a-entity id="#knob3" mixin="interactable knob" position="-1.5 0 -1" > </a-entity>
+    <a-cylinder id="#burner0" class="burner" mixin="burner" position="0 0 0"></a-cylinder>
+    <a-cylinder id="#burner1" class="burner" mixin="burner" position="0 0 -1"></a-cylinder>
+    <a-cylinder id="#burner2" class="burner" mixin="burner" position="-1 0 0"></a-cylinder>
+    <a-cylinder id="#burner3" class="burner" mixin="burner" position="-1 0 -1"></a-cylinder>
+</a-entity>
+<a-entity gltf-model="#kitchen-gltf" scale="0.1 0.05 0.1" position="0 0.1 10"></a-entity>
+<a-entity id="#tomato" mixin="tomato interactable" position="2.25 1.5 -2"></a-entity>
+<a-entity id="#carrot" mixin="carrot interactable" position="1.85 1.5 -2"></a-entity>
+<a-entity id="#chilly" mixin="chilly interactable" position="1.25 4 -2" rotation="0 90 0"></a-entity>
+<a-entity id="#banana" mixin="banana interactable" position="0.75 2 -2"></a-entity>
