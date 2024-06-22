@@ -19,33 +19,6 @@
     <script src="https://unpkg.com/aframe-gltf-part-component/dist/aframe-gltf-part-component.min.js"></script>
     
     <script>
-      AFRAME.registerComponent('on-off', {
-        init: function () {
-          var el = this.el;
-          var burner = document.getElementsByClassName('burner');
-
-          el.addEventListener('hot', function (event) {
-            var burnerIndex = event.detail.index;
-            burner[burnerIndex].setAttribute('animation', {
-              property: 'color',
-              from: '#000000',
-              to: '#FF0000',
-              dur: 2000
-            });
-          });
-
-          el.addEventListener('cold', function (event) {
-            var burnerIndex = event.detail.index;
-            burner[burnerIndex].setAttribute('animation', {
-              property: 'color',
-              from: '#FF0000',
-              to: '#000000',
-              dur: 2000
-            });
-          });
-        }
-      });
-
       AFRAME.registerComponent('add-body', {
         schema: {
           bodyType: { default: 'static', oneOf: ['static', 'dynamic'] },
@@ -66,33 +39,6 @@
           });
           
         }
-      });
-
-      AFRAME.registerComponent('collision-handler', {
-        init: function () {
-          var el = this.el;
-          var sceneEl = document.querySelector('a-scene');
-          var tomato = document.getElementById("#tomato");
-          var tomatoSlices = document.getElementsByClassName("tomato-slice");
-          el.addEventListener('collide', function collision (event) {
-            var collidedEntity = event.detail.body.el;
-              if (collidedEntity.id === '#tomato') {
-                const initialPosX = tomato.getAttribute("position").x;
-                const initialPosY = tomato.getAttribute("position").y;
-                const initialPosZ = tomato.getAttribute("position").z;
-                tomato.body.position.set(20, 2, -20);
-                var offset = -0.25;
-                for (var i = 0; i < tomatoSlices.length; i++) {
-                  //console.log("Slice:", tomatoSlices[i]);
-                  tomatoSlices[i].body.position.set(initialPosX + offset, initialPosY + 0.1, initialPosZ);
-                  tomatoSlices[i].body.quaternion.set(tomato.body.quaternion.x, tomato.body.quaternion.y, tomato.body.quaternion.z, tomato.body.quaternion.w);
-                  offset += 0.25;
-                }
-                el.removeEventListener('collide', collision);
-              }
-
-          });
-        },
       });
 
       AFRAME.registerComponent('change-scene', {
@@ -126,7 +72,6 @@
             el.setAttribute('rotation', {
               y: (el.getAttribute('rotation').y + value) % 360
             });
-            //console.log(el.getAttribute('rotation').y);
             if (el.getAttribute('rotation').y > 0 && el.getAttribute('rotation').y <= 90){
               
               burner.setAttribute('animation', {
@@ -162,10 +107,15 @@
 
           el.addEventListener('body-loaded', function (event) {
             var body = event.detail.body;
-            console.log(body);
-            var boxShape = new CANNON.Box(new CANNON.Vec3(0.01, 0.63, 0.5));
-            body.shapes = [boxShape];
-            body.shapeOffsets = [new CANNON.Vec3(0, 0, 0)];
+            var id = body.el.id;
+            if (id == '#instruction') {
+              var boxShape = new CANNON.Box(new CANNON.Vec3(0.01, 0.63, 0.5));
+              body.shapes = [boxShape];
+              body.shapeOffsets = [new CANNON.Vec3(0, 0, 0)];
+            }
+            else if (id == "#plate") {
+              console.log("helol");
+            }
           });
         }
       })
@@ -184,7 +134,6 @@
             else if (value > 0) {
               value = Math.min(value, 3.99);
             }
-            console.log(value);
             frame.setAttribute('src', '#' + img[Math.trunc(value)].id);
           });
         }
@@ -194,41 +143,43 @@
 
         init: function () {
           var el= this.el;
-          el.foods = document.getElementsByClassName("food");
+          
         },
         
         tick: function(time, timeDelta) {
           var el= this.el;
           var offset = 0.1;
-          var foods = this.foods;
-          var ok = el.ok;
-          ok = 0;
+          el.foods = document.getElementsByClassName("food");
+          var ok = 0;
 
-          function sortByYPosition(collection) {
-            return Array.from(collection).sort((entityA, entityB) => {
-              const posA = entityA.object3D.position.y;
-              const posB = entityB.object3D.position.y;
-              return posA - posB;
-            });
-          }
-
-          foods = sortByYPosition(foods);
-
-          if (Math.abs(this.el.body.position.y - foods[0].body.position.y) > this.getYDimension(this.el.object3D) + this.getYDimension(foods[0].object3D) + offset) {
-            ok = 1;
-          }
-
-          for (var i = 0; i < foods.length - 1; i++) {
-            if (Math.abs(foods[i+1].body.position.y - foods[i].body.position.y) > this.getYDimension(foods[i].object3D) + this.getYDimension(foods[i+1].object3D) + offset) {
-              ok = 1;
-              break;
+          if (el.foods.length != 0) {
+            var foods = el.foods;
+            function sortByYPosition(collection) {
+              return Array.from(collection).sort((entityA, entityB) => {
+                const posA = entityA.object3D.position.y;
+                const posB = entityB.object3D.position.y;
+                return posA - posB;
+              });
             }
-          }
 
-          if (ok == 0) {
-            console.log("in contact");
-          } else {
-            console.log("not in contact");
+            foods = sortByYPosition(foods);
+
+            if (Math.abs(this.el.body.position.y - foods[0].body.position.y) > this.getYDimension(this.el.object3D) + this.getYDimension(foods[0].object3D) + offset) {
+              ok = 1;
+            }
+
+            for (var i = 0; i < foods.length - 1; i++) {
+              if (Math.abs(foods[i+1].body.position.y - foods[i].body.position.y) > this.getYDimension(foods[i].object3D) + this.getYDimension(foods[i+1].object3D) + offset) {
+                ok = 1;
+                break;
+              }
+            }
+
+            if (ok == 0) {
+              console.log("in contact");
+            } else {
+              console.log("not in contact");
+            }
           }
         },
 
@@ -240,16 +191,24 @@
       })
 
       AFRAME.registerComponent('cuttable', {
-        
+        schema: {
+          geometry: {type: 'string', oneOf: ['sphere', 'box', 'cylinder']}
+        },
+
         init: function() {
           var el = this.el;
           el.collided = 3;
           el.startTimer = 0;
-          el.widthOffset = el.firstElementChild.getAttribute('geometry').width;
+          if (this.data.geometry == 'box') {
+            el.widthOffset = el.firstElementChild.getAttribute('geometry').width;
+          }
+          else if (this.data.geometry == 'sphere') {
+            el.widthOffset = el.firstElementChild.getAttribute('radius') / el.children.length + 0.1;
+          } 
+          
 
           el.addEventListener('collide', function collision(event) {
             var collidedEntity = event.detail.body.el;
-            // console.log(collidedEntity)
             if (el.collided == 3 && collidedEntity.id == "#knife") {
               el.collided = 0;
               el.removeEventListener('collide', collision);
@@ -262,19 +221,21 @@
           var el = this.el;
           var sceneEl = document.getElementById("scene-selector");
           var cutEntity = el.firstElementChild;
-          var cutEntityCopy = cutEntity.cloneNode(true);
+          var cutEntityCopy = cutEntity.cloneNode(false);
           var shapeEls = el.children;
 
           switch (el.collided) {
             case 0:
               var newPos = { x: el.body.position.x + el.widthOffset * shapeEls.length / 2 + 0.1, y: el.body.position.y + 0.1 , z: el.body.position.z}
-              
               el.removeChild(cutEntity);
-              console.log(el.body.quaternion)
               cutEntityCopy.object3D.quaternion.copy(el.body.quaternion);
               cutEntityCopy.setAttribute('position', newPos);
-              cutEntityCopy.setAttribute('dynamic-body', "shape: auto; mass: 5");
-              sceneEl.append(cutEntityCopy);
+              cutEntityCopy.setAttribute('dynamic-body', "shape: box; mass: 5");
+              cutEntityCopy.setAttribute("class", "food");
+              sceneEl.appendChild(cutEntityCopy);
+              if (this.data.geometry == 'sphere') {
+                cutEntityCopy.setAttribute("base", cutEntity.getAttribute("base"));
+              }
               if (shapeEls.length == 0) {
                 el.parentNode.removeChild(el);
                 break;
@@ -285,13 +246,15 @@
               el.collided = 1;
               break;
             case 1:
-              
-              for (var i = 0; i < shapeEls.length; i++) {
-                var shape = shapeEls[i];
-                var x = -((shapeEls.length - 1) * el.widthOffset) / 2 + i * el.widthOffset;
-                shape.setAttribute('position', {x: x, y: 0, z: 0});
+              if (this.data.geometry === 'box') {
+                for (var i = 0; i < shapeEls.length; i++) {
+                  var shape = shapeEls[i];
+                  var x = -((shapeEls.length - 1) * el.widthOffset) / 2 + i * el.widthOffset;
+                  shape.setAttribute('position', {x: x, y: 0, z: 0});
+                }
               }
-              el.setAttribute('dynamic-body', 'shape: auto; mass: 5;');
+              
+              el.setAttribute('dynamic-body', { shape: 'box', mass: 5});
               el.setAttribute('body-merger');
 
               el.startTimer = time;
@@ -299,13 +262,11 @@
               break;
             case 2:
               if (time - el.startTimer > 2000 && el.startTimer != 0) {
-                console.log(el.children);
-                console.log(el);
                 el.addEventListener('collide', function collision(event) {
                   var collidedEntity = event.detail.body.el;
                   
                   if (el.collided == 3 && collidedEntity.id == "#knife") {
-                    console.log(collidedEntity.body.material);
+
                     el.collided = 0;
                     el.removeEventListener('collide', collision);
                   }
@@ -318,30 +279,105 @@
         }
       });
 
-      AFRAME.registerComponent('move-camera', {
+      AFRAME.registerComponent('base', {
+        schema: {
+          place: {type: 'string', oneOf: ['top', 'bottom', 'both']},
+          color: {type: 'string', default: 'white'}
+        },
+        
         init: function () {
-          this.el.addEventListener('thumbstickmoved', this.moveCamera.bind(this));
+          var el = this.el;
+          var geometry = el.getAttribute('geometry');
+          
+          if (this.data.place == 'bottom' || this.data.place == 'both') {
+            var bottomCircle = document.createElement('a-circle');
+            var bottomRadius; 
+            var bottomYPosition;
+            if (geometry.primitive == 'sphere') {
+              var radiusSphere = geometry.radius;
+              var thetaStart = geometry.thetaStart;
+              var thetaLength = geometry.thetaLength;
+              var theta = thetaStart + thetaLength;              
+              var thetaBottom = (thetaStart + thetaLength) * Math.PI / 180;
+              bottomRadius = radiusSphere * Math.sin(thetaBottom);
+              bottomYPosition = -radiusSphere * Math.cos(thetaBottom);
+            }
+            else if (geometry.primitive == 'cylinder') {
+              bottomRadius = geometry.radius;
+              bottomYPosition = geometry.height / 2 + 0.001;
+            }
+            else if (geometry.primitive == 'box') {
+              
+            }
+            bottomCircle.setAttribute("material", 'side: double');
+            bottomCircle.setAttribute("radius", bottomRadius);
+            bottomCircle.setAttribute("position", {x: 0, y: -bottomYPosition, z: 0});
+            bottomCircle.setAttribute("rotation", '90 0 0');
+            bottomCircle.setAttribute("class", "bottom");
+            bottomCircle.setAttribute('color', this.data.color);
+            el.appendChild(bottomCircle);
+          }
+          if (this.data.place == 'top' || this.data.place == 'both') {
+            var topCircle = document.createElement('a-circle');
+            var topRadius;
+            var topYPosition;
+            if (geometry.primitive == 'sphere') {
+              var radiusSphere = geometry.radius;
+              var thetaStart = geometry.thetaStart;
+              var thetaLength = geometry.thetaLength;
+              var thetaTop = thetaStart * Math.PI / 180;
+              thetaTop = thetaStart * Math.PI / 180;
+              topRadius = radiusSphere * Math.sin(thetaTop);
+              topYPosition = radiusSphere * Math.cos(thetaTop);
+            }
+            else if (geometry.primitive == 'cylinder') {
+              topRadius = geometry.radius;
+              topYPosition = geometry.height / 2 + 0.001;
+            }
+
+            topCircle.setAttribute('radius', topRadius);
+            topCircle.setAttribute('material', 'side: double');
+            topCircle.setAttribute('position', {x: 0, y: topYPosition, z: 0});
+            topCircle.setAttribute('rotation', '90 0 0');
+            topCircle.setAttribute("class", "top");
+            topCircle.setAttribute('color', this.data.color);
+            el.appendChild(topCircle);
+          }
+          
+        },
+      });
+      AFRAME.registerComponent('plate-geometry', {
+        remove: function () {
+          this.el.removeObject3D('mesh');
         },
 
-        moveCamera: function (event) {
-          const { x, y } = event.detail;
-          const camera = document.querySelector('#head');
-          const rotation = camera.getAttribute('rotation');
-          const newRotation = {
-            x: rotation.x + y * 5,
-            y: rotation.y + x * 5,
-            z: 0
-          };
-          camera.setAttribute('rotation', newRotation);
-        }
-      });
+        init: function() {
+          const geometryEdge = new THREE.CylinderGeometry( 0.75, 0.55, 0.1, 8, 1, true); 
+          const geometryBase = new THREE.CylinderGeometry( 0.55, 0.55, 0.01, 8);
+          const materialEdge = new THREE.MeshStandardMaterial({ color: 0xffff00, side: THREE.DoubleSide });
+          const cylinderEdge = new THREE.Mesh(geometryEdge, materialEdge);
+          const materialBase = new THREE.MeshStandardMaterial();
+          const cylinderBase = new THREE.Mesh(geometryBase, materialBase);
+          cylinderBase.position.set(0, -0.05, 0);
+          const group = new THREE.Group();
+          group.add(cylinderBase);
+          group.add(cylinderEdge);
+          this.el.setObject3D('mesh', group);
+          
+        },
+      })
 
+      AFRAME.registerComponent('console-log', {
+        init: function() {
+          console.log(this.el.getAttribute('geometry'));
+        },
+      })
     </script>
     
     <!--script src="./src/index.js"></script-->
   </head>
   <body>
-    <a-scene physics="debug: true;" oculus-go-controls>
+    <a-scene physics="debug: true;">
       <a-assets>
         <a-asset-item id="basket-gltf" src="assets/models/basket.gltf"></a-asset-item>
         <a-asset-item id="knife-gltf" src="assets/models/knife2.gltf"></a-asset-item>
@@ -369,7 +405,7 @@
         <a-mixin
           id="physics-hand"
           physics-collider
-          collision-filter="collisionForces: true"
+          collision-filter="collisionForces: false"
           static-body="shape: sphere; sphereRadius: 0.03"
           super-hands="colliderEvent: collisions;
                       colliderEventProperty: els;
@@ -417,7 +453,7 @@
       </a-assets>
 
       <a-entity id="#camera-rig" position="0 0 3" rotation="0 0 0">
-        <a-camera id="#head" look-controls hand-controls move-camera>
+        <a-camera id="#head" look-controls wasd-controls>
           <a-cursor raycaster="objects: .interactable"
             fuse="true"
             fusetimeout="500"
@@ -429,6 +465,7 @@
         <a-entity id="#rhand" mixin="physics-hand" hand-controls="hand: right"></a-entity>
         <a-entity id="#lhand" mixin="physics-hand" hand-controls="hand: left"></a-entity>
       </a-entity>
+
 
       <a-entity id="scene-selector" template="src: src/scenes/scene1.html"></a-entity>
       
