@@ -204,8 +204,11 @@
           }
           else if (this.data.geometry == 'sphere') {
             el.widthOffset = el.firstElementChild.getAttribute('radius') / el.children.length + 0.1;
-          } 
-          
+          }
+          else if (this.data.geometry == 'cylinder') {
+            var cylinder = el.children[1];
+            el.widthOffset = cylinder.getAttribute('geometry').height;
+          }
 
           el.addEventListener('collide', function collision(event) {
             var collidedEntity = event.detail.body.el;
@@ -232,10 +235,9 @@
               cutEntityCopy.setAttribute('position', newPos);
               cutEntityCopy.setAttribute('dynamic-body', "shape: box; mass: 5");
               cutEntityCopy.setAttribute("class", "food");
+              cutEntityCopy.setAttribute("base", cutEntity.getAttribute("base"));
               sceneEl.appendChild(cutEntityCopy);
-              if (this.data.geometry == 'sphere') {
-                cutEntityCopy.setAttribute("base", cutEntity.getAttribute("base"));
-              }
+              
               if (shapeEls.length == 0) {
                 el.parentNode.removeChild(el);
                 break;
@@ -246,11 +248,22 @@
               el.collided = 1;
               break;
             case 1:
-              if (this.data.geometry === 'box') {
+              if (this.data.geometry !== 'sphere') {
                 for (var i = 0; i < shapeEls.length; i++) {
                   var shape = shapeEls[i];
-                  var x = -((shapeEls.length - 1) * el.widthOffset) / 2 + i * el.widthOffset;
-                  shape.setAttribute('position', {x: x, y: 0, z: 0});
+                  var align;
+                  if (this.data.geometry === 'box') {
+                    align = -((shapeEls.length - 1) * el.widthOffset) / 2 + i * el.widthOffset;
+                    shape.setAttribute('position', {x: align, y: 0, z: 0});
+                  }
+                  else {
+                    align = -((shapeEls.length - 1) * el.widthOffset) / 2 + i * el.widthOffset;
+                    if (i == shapeEls.length - 1) {
+                      align = align - el.widthOffset / 2;
+                      shape.setAttribute('rotation', '0 0 180');
+                    }
+                    shape.setAttribute('position', {x: 0, y: align, z: 0});
+                  }
                 }
               }
               
@@ -288,7 +301,7 @@
         init: function () {
           var el = this.el;
           var geometry = el.getAttribute('geometry');
-          
+          console.log(geometry.primitive);
           if (this.data.place == 'bottom' || this.data.place == 'both') {
             var bottomCircle = document.createElement('a-circle');
             var bottomRadius; 
@@ -297,25 +310,43 @@
               var radiusSphere = geometry.radius;
               var thetaStart = geometry.thetaStart;
               var thetaLength = geometry.thetaLength;
-              var theta = thetaStart + thetaLength;              
+              var theta = thetaStart + thetaLength;
               var thetaBottom = (thetaStart + thetaLength) * Math.PI / 180;
               bottomRadius = radiusSphere * Math.sin(thetaBottom);
               bottomYPosition = -radiusSphere * Math.cos(thetaBottom);
+              bottomCircle.setAttribute("material", 'side: double');
+              bottomCircle.setAttribute("geometry", { radius: bottomRadius });
+              bottomCircle.setAttribute("position", {x: 0, y: -bottomYPosition, z: 0});
+              bottomCircle.setAttribute("rotation", '90 0 0');
+              bottomCircle.setAttribute("class", "bottom");
+              bottomCircle.setAttribute('color', this.data.color);
+              el.appendChild(bottomCircle);
             }
             else if (geometry.primitive == 'cylinder') {
               bottomRadius = geometry.radius;
               bottomYPosition = geometry.height / 2 + 0.001;
+              bottomCircle.setAttribute("material", 'side: double');
+              bottomCircle.setAttribute("geometry", { radius: bottomRadius });
+              bottomCircle.setAttribute("position", { x: 0, y: -bottomYPosition, z: 0 });
+              bottomCircle.setAttribute("rotation", '90 0 0');
+              bottomCircle.setAttribute("class", "bottom");
+              bottomCircle.setAttribute('color', this.data.color);
+              el.appendChild(bottomCircle);
             }
             else if (geometry.primitive == 'box') {
-              
+              var bottomPlane = document.createElement('a-plane');
+              var planeWidth = geometry.depth;
+              var planeHeight = geometry.height;
+              bottomXPosition = geometry.width / 2 + 0.001;
+              bottomPlane.setAttribute("geometry", { width: planeWidth, height: planeHeight });
+              bottomPlane.setAttribute("position", {x: -bottomXPosition, y: 0, z: 0});
+              bottomPlane.setAttribute('rotation', '0 90 0');
+              bottomPlane.setAttribute("class", "bottom");
+              bottomPlane.setAttribute('color', this.data.color);
+              bottomPlane.setAttribute('material', 'side: double');
+              el.appendChild(bottomPlane);
             }
-            bottomCircle.setAttribute("material", 'side: double');
-            bottomCircle.setAttribute("radius", bottomRadius);
-            bottomCircle.setAttribute("position", {x: 0, y: -bottomYPosition, z: 0});
-            bottomCircle.setAttribute("rotation", '90 0 0');
-            bottomCircle.setAttribute("class", "bottom");
-            bottomCircle.setAttribute('color', this.data.color);
-            el.appendChild(bottomCircle);
+            
           }
           if (this.data.place == 'top' || this.data.place == 'both') {
             var topCircle = document.createElement('a-circle');
@@ -329,21 +360,40 @@
               thetaTop = thetaStart * Math.PI / 180;
               topRadius = radiusSphere * Math.sin(thetaTop);
               topYPosition = radiusSphere * Math.cos(thetaTop);
+              topCircle.setAttribute('radius', topRadius);
+              topCircle.setAttribute('material', 'side: double');
+              topCircle.setAttribute('position', {x: 0, y: topYPosition, z: 0});
+              topCircle.setAttribute('rotation', '90 0 0');
+              topCircle.setAttribute("class", "top");
+              topCircle.setAttribute('color', this.data.color);
+              el.appendChild(topCircle);
             }
             else if (geometry.primitive == 'cylinder') {
               topRadius = geometry.radius;
               topYPosition = geometry.height / 2 + 0.001;
+              topCircle.setAttribute('radius', topRadius);
+              topCircle.setAttribute('material', 'side: double');
+              topCircle.setAttribute('position', {x: 0, y: topYPosition, z: 0});
+              topCircle.setAttribute('rotation', '90 0 0');
+              topCircle.setAttribute("class", "top");
+              topCircle.setAttribute('color', this.data.color);
+              el.appendChild(topCircle);
             }
+            else if (geometry.primitive == 'box') {
+              var topPlane = document.createElement('a-plane');
+              var planeWidth = geometry.depth;
+              var planeHeight = geometry.height;
+              topXPosition = geometry.width / 2 + 0.001;
 
-            topCircle.setAttribute('radius', topRadius);
-            topCircle.setAttribute('material', 'side: double');
-            topCircle.setAttribute('position', {x: 0, y: topYPosition, z: 0});
-            topCircle.setAttribute('rotation', '90 0 0');
-            topCircle.setAttribute("class", "top");
-            topCircle.setAttribute('color', this.data.color);
-            el.appendChild(topCircle);
+              topPlane.setAttribute("geometry", { width: planeWidth, height: planeHeight });
+              topPlane.setAttribute('position', {x: topXPosition, y: 0, z: 0});
+              topPlane.setAttribute('rotation', '0 90 0');
+              topPlane.setAttribute("class", "top");
+              topPlane.setAttribute('color', this.data.color);
+              topPlane.setAttribute('material', 'side: double');
+              el.appendChild(topPlane);
+            }
           }
-          
         },
       });
       AFRAME.registerComponent('plate-geometry', {
