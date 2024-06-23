@@ -17,7 +17,7 @@
     <script src="https://rawgit.com/caseyyee/aframe-ui-widgets/master/dist/aframe-ui-widgets.min.js"></script>
     <script src="https://unpkg.com/aframe-template-component@3.2.1/dist/aframe-template-component.min.js"></script>
     <script src="https://unpkg.com/aframe-gltf-part-component/dist/aframe-gltf-part-component.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-particle-system-component@1.1.4/dist/aframe-particle-system-component.min.js"></script>    
     <script>
       AFRAME.registerComponent('add-body', {
         schema: {
@@ -142,51 +142,69 @@
       AFRAME.registerComponent('plating', {
 
         init: function () {
-          var el= this.el;
-          
+          this.el.isFinished = 0;
         },
         
         tick: function(time, timeDelta) {
           var el= this.el;
-          var offset = 0.1;
-          el.foods = document.getElementsByClassName("food");
+          var offset = 0.05;
+          var body = el.body;
+          var foods = document.getElementsByClassName("food");
           var ok = 0;
+          
 
-          if (el.foods.length != 0) {
-            var foods = el.foods;
+          if (foods.length != 0 && el.isFinished == 0) {
+            var sandwichHeight = 0.3;
+            var plateGeometry = el.getAttribute('geometry');
+            for (var i = 0; i < foods.length; i++) {
+              var platePos = el.getAttribute('position');
+              var foodPos = foods[i].body.position;
+
+              const deltaX = foodPos.x - platePos.x;
+              const deltaY = foodPos.y - platePos.y;
+              const deltaZ = foodPos.z - platePos.z;
+
+              if (Math.abs(deltaX) < plateGeometry.width/2 && Math.abs(deltaY) < sandwichHeight && Math.abs(deltaZ) < plateGeometry.depth/2) {
+                foods[i].classList.add("sandwich");
+                sandwichHeight += deltaY;
+              }
+              else if (foods[i].classList.contains("sandwich")) {
+                foods[i].classList.remove("sandwich");
+              }
+            }
+            el.sandwichParts = document.getElementsByClassName("sandwich");
+            var sandwichParts = el.sandwichParts;
+
             function sortByYPosition(collection) {
               return Array.from(collection).sort((entityA, entityB) => {
-                const posA = entityA.object3D.position.y;
-                const posB = entityB.object3D.position.y;
+                const posA = entityA.body.position.y;
+                const posB = entityB.body.position.y;
                 return posA - posB;
               });
             }
-
-            foods = sortByYPosition(foods);
-
-            if (Math.abs(this.el.body.position.y - foods[0].body.position.y) > this.getYDimension(this.el.object3D) + this.getYDimension(foods[0].object3D) + offset) {
-              ok = 1;
+            if (sandwichParts.length > 1) {
+              sandwichParts = sortByYPosition(sandwichParts);
             }
-
-            for (var i = 0; i < foods.length - 1; i++) {
-              if (Math.abs(foods[i+1].body.position.y - foods[i].body.position.y) > this.getYDimension(foods[i].object3D) + this.getYDimension(foods[i+1].object3D) + offset) {
-                ok = 1;
-                break;
-              }
-            }
-
-            if (ok == 0) {
-              console.log("in contact");
-            } else {
-              console.log("not in contact");
+            document.getElementsByTagName
+            if (  
+              sandwichParts.length > 3 && 
+              sandwichParts[0].classList.contains("bread") && 
+              sandwichParts[sandwichParts.length-1].classList.contains("bread")
+            ) {
+              var plate = document.getElementById("#plate");
+              plate.setAttribute('particle-system', 
+                'preset: default; size: 0.2; sizeSpread: 0.5; direction: 0.3; accelerationValue: 0 1 0; accelerationSpread: 1 1 1; velocityValue: 0 2 0; velocitySpread: 0 2 0;'
+              )
+              el.isFinished = 1;
+              el.startTimer = time
             }
           }
-        },
+          else if (el.isFinished == 1 && time - el.startTimer > 3000) {
+            var sceneSelector = document.getElementById("scene-selector");
+            sceneSelector.setAttribute("template", "src: src/scenes/scene_selector.html");
+          }
 
-        getYDimension: function (object3d) {
-          var box = new THREE.Box3().setFromObject(object3d);
-          var y = (box.max.y - box.min.y) / 2;
-          return y;
+          
         },
       })
 
@@ -229,12 +247,12 @@
 
           switch (el.collided) {
             case 0:
-              var newPos = { x: el.body.position.x + el.widthOffset * shapeEls.length / 2 + 0.1, y: el.body.position.y + 0.1 , z: el.body.position.z}
+              var newPos = { x: el.body.position.x + el.widthOffset * shapeEls.length / 2 + 0.05, y: el.body.position.y + 0.05 , z: el.body.position.z}
               el.removeChild(cutEntity);
               cutEntityCopy.object3D.quaternion.copy(el.body.quaternion);
               cutEntityCopy.setAttribute('position', newPos);
               cutEntityCopy.setAttribute('dynamic-body', "shape: box; mass: 5");
-              cutEntityCopy.setAttribute("class", "food");
+              cutEntityCopy.setAttribute("class", cutEntityCopy.getAttribute("class") + " food");
               cutEntityCopy.setAttribute("base", cutEntity.getAttribute("base"));
               sceneEl.appendChild(cutEntityCopy);
               
@@ -301,7 +319,6 @@
         init: function () {
           var el = this.el;
           var geometry = el.getAttribute('geometry');
-          console.log(geometry.primitive);
           if (this.data.place == 'bottom' || this.data.place == 'both') {
             var bottomCircle = document.createElement('a-circle');
             var bottomRadius; 
@@ -417,11 +434,7 @@
         },
       })
 
-      AFRAME.registerComponent('console-log', {
-        init: function() {
-          console.log(this.el.getAttribute('geometry'));
-        },
-      })
+      
     </script>
     
     <!--script src="./src/index.js"></script-->
@@ -429,18 +442,10 @@
   <body>
     <a-scene physics="debug: true;">
       <a-assets>
-        <a-asset-item id="basket-gltf" src="assets/models/basket.gltf"></a-asset-item>
         <a-asset-item id="knife-gltf" src="assets/models/knife2.gltf"></a-asset-item>
         <a-asset-item id="kitchen-gltf" src="assets/models/kitchen2.gltf"></a-asset-item>
         <a-asset-item id="sandwich-gltf" src="assets/models/SANDWICH_REVAMPED.gltf"></a-asset-item>
-        <a-asset-item id="knob-obj" src="assets/models/knob.obj"></a-asset-item>
-        <a-asset-item id="knob-mtl" src="assets/models/knob.mtl"></a-asset-item>
-        <a-asset-item id="tomato-fbx" src="assets/models/tomato.fbx"></a-asset-item>
-        <a-asset-item id="tomato-gltf" src="assets/models/tomato.gltf"></a-asset-item>
-        <a-asset-item id="tomato-slice-fbx" src="assets/models/tomato-slice.fbx"></a-asset-item>
-        <a-asset-item id="chilly-fbx" src="assets/models/chilly.fbx"></a-asset-item>
-        <a-asset-item id="banana-fbx" src="assets/models/banana.fbx"></a-asset-item>
-        <a-asset-item id="carrot-fbx" src="assets/models/carrot.fbx"></a-asset-item>
+
         <img id="visitor0" src="assets/images/visitor_1.png">
         <img id="visitor1" src="assets/images/visitor_2.png">
         <img id="visitor2" src="assets/images/visitor_3.png">
@@ -462,40 +467,10 @@
                       colliderEndEvent: collisions;
                       colliderEndEventProperty: clearedEls;">
         </a-mixin>
-        <a-mixin id="knob"
-          obj-model="obj: #knob-obj"
-          add-body knob-turn on-off
-          scale="0.25 0.25 0.25">
-        </a-mixin>
         <a-mixin id="burner"
           geometry="primitive: cylinder; height: 0.1; radius: 1"
           material="color: black"
           scale="0.33 0.33 0.33">
-        </a-mixin>
-        <a-mixin id="tomato"
-          gltf-model="#tomato-gltf"
-          add-body="bodyType: dynamic"
-          scale="0.0025 0.0025 0.0025">
-        </a-mixin>
-        <a-mixin id="chilly"
-          fbx-model="src: assets\models\chilly.fbx"
-          add-body="bodyType: dynamic"
-          scale="0.01 0.01 0.01">
-        </a-mixin>
-        <a-mixin id="banana"
-          fbx-model="src: assets\models\banana.fbx"
-          add-body="bodyType: dynamic"
-          scale="0.004 0.004 0.004">
-        </a-mixin>
-        <a-mixin id="carrot"
-          fbx-model="src: assets\models\carrot.fbx"
-          add-body="bodyType: dynamic"
-          scale="0.0025 0.0025 0.0025">
-        </a-mixin>
-        <a-mixin id="tomato-slice"
-          fbx-model="src: assets\models\tomato-slice.fbx;"
-          add-body="bodyType: dynamic"
-          scale="0.002 0.002 0.002">
         </a-mixin>
         <a-mixin id="cube"
           geometry="primitive: box; width: 0.5; height: 0.5; depth: 0.5">
@@ -516,8 +491,7 @@
         <a-entity id="#lhand" mixin="physics-hand" hand-controls="hand: left"></a-entity>
       </a-entity>
 
-
-      <a-entity id="scene-selector" template="src: src/scenes/scene1.html"></a-entity>
+      <a-entity id="scene-selector" template="src: src/scenes/scene_selector.html"></a-entity>
       
       <a-plane static-body rotation="90 0 0" geometry="width: 100; height: 100" scale="1000 1000 1000"></a-plane>
       <a-entity environment></a-entity>
