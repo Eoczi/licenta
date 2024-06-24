@@ -105,29 +105,33 @@
 
         init: function () {
           var el= this.el;
-
           el.addEventListener('body-loaded', function (event) {
             var body = event.detail.body;
             var id = body.el.id;
-            if (id === '#instruction') {
+            if (id == '#instructions') {
               var boxShape = new CANNON.Box(new CANNON.Vec3(0.01, 0.63, 0.5));
               body.shapes = [boxShape];
               body.shapeOffsets = [new CANNON.Vec3(0, 0, 0)];
             }
-            else if (id === "#plate") {
+            else if (id == "#plate") {
               console.log("helol");
             }
           });
+          el.setAttribute("dynamic-body", "shape: box; mass: 5");
         }
       })
 
       AFRAME.registerComponent('change-slides', {
+        schema: {
+          scene: { type: 'string', oneOf: ['scene1', 'scene2']},
+        },
 
         init: function () {
           var el= this.el;
           var frame = document.getElementById("#frame");
           var img = document.getElementsByTagName('img');
-          
+          var images = document.getElementsByClassName(this.data.scene);
+
           el.addEventListener('change', function (event) {
             var value = event.detail.value;
             if (value < 0) {
@@ -142,6 +146,9 @@
       })
 
       AFRAME.registerComponent('plating', {
+        schema: {
+          scene: { type: 'string', oneOf: ['scene1', 'scene2']},
+        },
 
         init: function () {
           this.el.isFinished = 0;
@@ -152,6 +159,7 @@
           var offset = 0.05;
           var body = el.body;
           var foods = document.getElementsByClassName("food");
+          var sceneSelector = document.getElementById("scene-selector");
           var ok = 0;
           
 
@@ -187,34 +195,34 @@
             if (sandwichParts.length > 1) {
               sandwichParts = sortByYPosition(sandwichParts);
             }
-            document.getElementsByTagName
+            
             if (  
-              sandwichParts.length > 3 && 
+              sandwichParts.length >= 3 && 
               sandwichParts[0].classList.contains("bread") && 
               sandwichParts[sandwichParts.length-1].classList.contains("bread")
             ) {
               var plate = document.getElementById("#plate");
-              plate.setAttribute('particle-system', {
-                  preset: 'default',
-                  size: 0.2,
-                  sizeSpread: 0.5,
-                  direction: 0.3,
-                  accelerationValue: '0 1 0',
-                  accelerationSpread: '1 1 1',
-                  velocityValue: '0 2 0',
-                  velocitySpread: '0 2 0'
+              if (this.data.scene == "scene1") {
+                plate.setAttribute('particle-system', 'preset: default; size: 0.2; sizeSpread: 0.5; direction: 0.3; accelerationValue: 0 1 0; accelerationSpread: 1 1 1; velocityValue: 0 2 0; velocitySpread: 0 2 0;')
+                el.isFinished = 1;
+                el.startTimer = time;
+              }
+
+              if (this.data.scene == "scene2") {
+                console.log("helol");
+                var hasPatty = Array.prototype.some.call(sandwichParts, part => part.classList.contains('cooked'));
+                if (hasPatty) {
+                  plate.setAttribute('particle-system', 'preset: default; size: 0.2; sizeSpread: 0.5; direction: 0.3; accelerationValue: 0 1 0; accelerationSpread: 1 1 1; velocityValue: 0 2 0; velocitySpread: 0 2 0;')
+                  el.isFinished = 1;
+                  el.startTimer = time;
                 }
-              )
-              el.isFinished = 1;
-              el.startTimer = time
+              }
+              
             }
           }
-          else if (el.isFinished == 1 && time - el.startTimer > 3000) {
-            var sceneSelector = document.getElementById("scene-selector");
+          else if (el.isFinished == 1 && time - el.startTimer > 10000) {
             sceneSelector.setAttribute("template", "src: src/scenes/scene_selector_page.html");
-          }
-
-          
+          }          
         },
       })
 
@@ -262,7 +270,7 @@
               cutEntityCopy.object3D.quaternion.copy(el.body.quaternion);
               cutEntityCopy.setAttribute('position', newPos);
               cutEntityCopy.setAttribute('dynamic-body', "shape: box; mass: 5");
-              cutEntityCopy.setAttribute("class", cutEntityCopy.getAttribute("class") + " food");
+              cutEntityCopy.classList.add("food");
               cutEntityCopy.setAttribute("base", cutEntity.getAttribute("base"));
               sceneEl.appendChild(cutEntityCopy);
               
@@ -288,7 +296,9 @@
                     align = -((shapeEls.length - 1) * el.widthOffset) / 2 + i * el.widthOffset;
                     if (i == shapeEls.length - 1) {
                       align = align - el.widthOffset / 2;
-                      shape.setAttribute('rotation', '0 0 180');
+                      if (shape.getAttribute("geometry").primitive == "sphere") {
+                        shape.setAttribute('rotation', '0 0 180');
+                      }
                     }
                     shape.setAttribute('position', {x: 0, y: align, z: 0});
                   }
@@ -440,18 +450,103 @@
           group.add(cylinderBase);
           group.add(cylinderEdge);
           this.el.setObject3D('mesh', group);
-          
         },
       })
 
+      AFRAME.registerComponent("dough-stretch", {
+        init: function () {
+          var el= this.el;
+          el.scaleClone = null;
+          this.el.addEventListener("stretch-start", function(event) {
+            el.scaleClone = new THREE.Vector3( event.detail.target.object3D.scale.x, event.detail.target.object3D.scale.y, event.detail.target.object3D.scale.z );
+            console.log(event.detail.target.object3D);
+          })
+
+          this.el.addEventListener("stretch-end", function(event) {
+            console.log(event.detail.target.object3D.scale);
+            el.removeAttribute("dynamic-body");
+            el.setAttribute("dynamic-body", "shape: box; mass: 3");
+          })
+        },
+
+        tick: function (time, timeDelta) {
+          var el= this.el;
+          if (el.states.includes("stretched")) {
+            if (el.scaleClone.x != el.object3D.scale.x) {
+              el.object3D.scale.y -= (el.object3D.scale.x - el.scaleClone.x) * 1.75;
+              el.scaleClone.x = el.object3D.scale.x;
+              if (el.object3D.scale.y <= 0.05) {
+                el.removeAttribute("stretchable");
+                el.classList.add("dough");
+                el.removeAttribute("dynamic-body");
+                el.setAttribute("dynamic-body", "shape: box; mass: 3");
+              }
+            }
+          }
+        }
+      })
+
       AFRAME.registerComponent('console-log', {
-        init: function() {
-          this.el.setAttribute("class", "food");
-          this.el.setAttribute("class", "edi koczi");
-          this.el.setAttribute("class", this.el.getAttribute("class") + " shomi")
-          var koczi = document.getElementsByClassName("shomi");
-          console.log(koczi);
-          console.log(this.el);
+        init: function () {
+          var el=this.el;
+          el.startTimer = 100000000000;
+        },
+
+        tick: function (time, timeDelta) {
+          // var el=this.el;
+          // var shomi = document.getElementById("#shomi");
+          // var shomi2 = document.getElementById("#shomi2");
+          // if (el.classList.contains("food")){
+          //   el.classList.remove("food");
+          //   el.classList.add("poop");
+          //   // el.removeAttribute("dynamic-body");
+          //   // var shomi2 = shomi.cloneNode(false);
+          //   // console.log(shomi2);
+          //   shomi.setParent(shomi2);
+            
+            
+          // }
+          // else if (el.classList.contains("poop") && time - el.startTimer > 3000 ) {
+          //   el.startTimer = time;
+          // }
+
+        },
+      })
+
+      AFRAME.registerComponent("add-sauce", {
+        init: function () {
+          var el =this.el;
+          console.log(el);
+        },
+
+        tick: function (time, timeDelta) {
+          var el =this.el;
+          var doughs = document.getElementsByClassName("dough");
+
+          for (var k = 0; k < doughs.length; k++) {
+            var dough = doughs[k];
+
+            var bottlePos = el.body.position;
+            var doughPos = dough.body.position;
+            var bottleGeometry = el.getAttribute('geometry');
+            var doughGeometry = dough.getAttribute('geometry');
+
+            const deltaX = bottlePos.x - doughPos.x;
+            const deltaY = bottlePos.y - doughPos.y;
+            const deltaZ = bottlePos.z - doughPos.z;
+
+            if ( Math.abs(deltaX) < doughGeometry.radius * 2 && 
+              Math.abs(deltaY) < 1 && 
+              Math.abs(deltaZ) < doughGeometry.radius * 2
+            ) {
+
+              if ((el.body.quaternion.z <= -0.7 && el.body.quaternion.z >= -1) || (el.body.quaternion.z >= 0.7 && el.body.quaternion.z <= 1)) {
+                dough.firstElementChild.setAttribute("visible", "true");
+                dough.classList.remove("dough");
+                dough.classList.add("sauced");
+              }
+            }
+          }
         },
       })
 
@@ -555,7 +650,8 @@
     <a-scene physics="debug: true;">
       <a-assets>
         <a-asset-item id="knife-gltf" src="assets/models/knife2.gltf"></a-asset-item>
-        <a-asset-item id="kitchen-gltf" src="assets/models/kitchen2.gltf"></a-asset-item>
+        <a-asset-item id="kitchen-parts-gltf" src="assets/models/kitchen2.gltf"></a-asset-item>
+        <a-asset-item id="kitchen-gltf" src="assets/models/kitchen1.gltf"></a-asset-item>
         <a-asset-item id="sandwich-gltf" src="assets/models/SANDWICH_REVAMPED.gltf"></a-asset-item>
 
         <img id="visitor0" class="scene1" src="assets/images/visitor_1.png">
@@ -603,7 +699,7 @@
         <a-entity id="#lhand" mixin="physics-hand" hand-controls="hand: left"></a-entity>
       </a-entity>
 
-      <a-entity id="scene-selector" template="src: src/scenes/scene1.html"></a-entity>
+      <a-entity id="scene-selector" template="src: src/scenes/scene3.html"></a-entity>
       
       <a-plane static-body rotation="90 0 0" geometry="width: 100; height: 100" scale="1000 1000 1000"></a-plane>
       <a-entity environment></a-entity>

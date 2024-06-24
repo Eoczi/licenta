@@ -40,28 +40,20 @@
     <a-entity position="0.01 0 -0.375" ui-slider="size: 1; max: 4" change-slides="scene: #scene2" rotation="0 0 -90"></a-entity>
 </a-box>
 
-<a-box id="#plate" static-body plating="scene: scene2" position="-2.5 1.03 -7"  geometry="width: 0.5; height: 0.03; depth: 0.5"></a-box>
+<a-box id="#plate" static-body plating="scene: scene3" position="-2.5 1.03 -7"  geometry="width: 0.5; height: 0.03; depth: 0.5"></a-box>
 
 <a-box id="#knife" mixin="interactable" dynamic-body scale="0.25 0.25 1" position="-0.971 1.2 -3.157"></a-box>
 
-<a-cylinder mixin="interactable" id="#pan" color="darkgrey" geometry="radius: 0.4; height: 0.04" dynamic-body position="-3.74044 1.14 -4.56064" hot burn-meat></a-cylinder>
 <a-cylinder 
-    mixin="interactable" class="food meat" 
-    color="#FF7F7F" geometry="radius: 0.15; height: 0.05" 
-    dynamic-body position="-3.74044 1.5 -4.56064"
-    cooking-animation> 
-</a-cylinder>
-<a-cylinder 
-    mixin="interactable" class="food meat" 
-    color="#FF7F7F" geometry="radius: 0.15; height: 0.05" 
-    dynamic-body position="-3.74044 1.6 -3.56064"
-    cooking-animation> 
-</a-cylinder>
-<a-cylinder 
-    mixin="interactable" class="food meat" 
-    color="#FF7F7F" geometry="radius: 0.15; height: 0.05" 
-    dynamic-body position="-3.74044 1.8 -3.56064"
-    cooking-animation> 
+    mixin="interactable" console-log 
+    dough-stretch stretchable 
+    color="#FCF8C8" geometry="radius: 0.2; height: 0.25" 
+    dynamic-body="shape: box; mass: 3" body-merger="dynamic-body" 
+    position="0.5 2 0">
+    <a-entity id="#sauce" 
+        visible="false" material="color: red" 
+        geometry="primitive: cylinder; radius: 0.175; height: 0.25" 
+        position="0 0.03 0"></a-entity>
 </a-cylinder>
 
 <a-entity id="#tomato" mixin="interactable" dynamic-body="shape: sphere" body-merger cuttable="geometry: sphere" position="-0.465 1 -7.473">
@@ -73,9 +65,12 @@
     <a-sphere mixin="interactable" color="tomato" geometry="radius: 0.15; theta-start: 130; theta-length: 50" base="place: top; color: tomato"></a-sphere>
 </a-entity>
 
-<a-entity id="#bun" mixin="interactable" dynamic-body="shape: box" body-merger cuttable="geometry: cylinder" position="-1.7 1.08 -7.149">
-    <a-sphere mixin="interactable" class="bread" color="chocolate" geometry="radius: 0.2; theta-start: 0; theta-length: 90" base="place: bottom; color: beige" position="0 0.03 0"></a-sphere>
-    <a-cylinder mixin="interactable" class="bread" color="chocolate" base="place: top; color: beige" geometry="radius: 0.2; height: 0.06;" ></a-cylinder>
-</a-entity>
+<a-cylinder mixin="interactable" id="ketchup" add-sauce geometry="height: 0.5; radius: 0.1" material="color: red" position="0 1 0" dynamic-body="">
+    <a-cylinder geometry="height: 0.05; radius: 0.05" material="color: ForestGreen" position="0 0.25 0"></a-cylinder>
+    <a-cone geometry="radius-bottom: 0.05; height: 0.1;" material="color: ForestGreen" position="0 0.25 0"></a-cone>
+</a-cylinder>
+
+<!-- <a-box geometry="width: 0.3; height: 0.3; depth: 0.3" id="#shomi" position="0 1 0"></a-box>
+<a-box geometry="width: 0.3; height: 0.3; depth: 0.3" id="#shomi2" position="0 2 0"></a-box> -->
 
 
