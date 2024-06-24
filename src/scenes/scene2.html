@@ -1,24 +1,57 @@
-<a-box id="#backwall" position="-7.5 1.5 0" width="1" height="3" depth="15" color="white"></a-box>
-<a-box id="#leftwall" position="7.5 1.5 0" width="1" height="3" depth="15" color="white"></a-box>
-<a-box id="#rightwall" position="0 1.5 -7.5" width="15" height="3" depth="1" color="white"></a-box>
-<!-- <a-box id="#frontwall" position="0 4.5 7.5" width="15" height="3" depth="1" color="white"></a-box> -->
-<a-box static-body id="#table" position="0 0.25 -2.5" width="5" depth="3" height="0.5" color="grey">
-    <a-box id="#table-top" position="0 0.325 0"  width="6" depth="3.5" height="0.15" color="grey"></a-box>
-</a-box>
-<!--a-entity id="basket" gltf-model="#basket-gltf" position="0 1 -2" scale="0.05 0.05 0.05" add-body="bodyType: dynamic"></a-entity-->
-<a-box id="#knife" gltf-model="#knife-gltf" position="0.5 2 -2" add-body="bodyType: dynamic" mixin="interactable" collision-handler scale="2.5 2.5 2.5"></a-box>
-<a-entity position="-1 0.65 -2" >
-    <a-entity id="#knob0" mixin="interactable knob" position="0.5 0 0"></a-entity>
-    <a-entity id="#knob1" mixin="interactable knob" position="0.5 0 -1" ></a-entity>
-    <a-entity id="#knob2" mixin="interactable knob" position="-1.5 0 0"></a-entity>
-    <a-entity id="#knob3" mixin="interactable knob" position="-1.5 0 -1" > </a-entity>
-    <a-cylinder id="#burner0" class="burner" mixin="burner" position="0 0 0"></a-cylinder>
-    <a-cylinder id="#burner1" class="burner" mixin="burner" position="0 0 -1"></a-cylinder>
-    <a-cylinder id="#burner2" class="burner" mixin="burner" position="-1 0 0"></a-cylinder>
-    <a-cylinder id="#burner3" class="burner" mixin="burner" position="-1 0 -1"></a-cylinder>
+<a-entity id="stove" position="-3.74044 1.07 -4.56064" scale="0.8 0.8 0.8" rotation="0 90 0">
+    <a-entity id="#knob0" ui-rotary scale="0.75 0.75 0.75" knob-turn="burner: #burner0" position="0.6 0 -1.1"></a-entity>
+    <a-entity id="#knob1" ui-rotary scale="0.75 0.75 0.75" knob-turn="burner: #burner1" position="0.6 0 -0.7"></a-entity>
+    <a-entity id="#knob2" ui-rotary scale="0.75 0.75 0.75" knob-turn="burner: #burner2" position="0.6 0 -0.3"></a-entity>
+    <a-entity id="#knob3" ui-rotary scale="0.75 0.75 0.75" knob-turn="burner: #burner3" position="0.6 0 0.1"></a-entity>
+    <a-cylinder id="#burner0" class="burner" color="#000000" mixin="burner" position="0 0 0"></a-cylinder>
+    <a-cylinder id="#burner1" class="burner" color="#000000" mixin="burner" position="0 0 -1" ></a-cylinder>
+    <a-cylinder id="#burner2" class="burner" color="#000000" mixin="burner" position="-1 0 0" ></a-cylinder>
+    <a-cylinder id="#burner3" class="burner" color="#000000" mixin="burner" position="-1 0 -1"></a-cylinder>
 </a-entity>
-<a-entity gltf-model="#kitchen-gltf" scale="0.1 0.05 0.1" position="0 0.1 10"></a-entity>
-<a-entity id="#tomato" mixin="tomato interactable" position="2.25 1.5 -2"></a-entity>
-<a-entity id="#carrot" mixin="carrot interactable" position="1.85 1.5 -2"></a-entity>
-<a-entity id="#chilly" mixin="chilly interactable" position="1.25 4 -2" rotation="0 90 0"></a-entity>
-<a-entity id="#banana" mixin="banana interactable" position="0.75 2 -2"></a-entity>
+<a-entity id="#kitchen" gltf-model="#kitchen-gltf" scale="0.1 0.05 0.1" position="0 0.07 -3"></a-entity>
+
+<a-box id="#table" position="0 0.25 -3" geometry="width: 3; depth: 2; height: 0.5" color="grey">
+    <a-box id="#table-top" static-body position="0 0.325 0" geometry="width: 4; depth: 3; height: 0.15" color="grey"></a-box>
+    <a-box static-body geometry="width: 3; depth: 2; height: 0.5" visible="false"></a-box>
+</a-box>
+
+<a-entity id="#kitchen-body" position="0 0.07 -3">
+    <a-box visible="false" static-body geometry="width: 6.53; depth: 1.81" position="-2.09 0.45085 -4.25387"></a-box>
+    <a-box visible="false" static-body geometry="width: 6.33; height: 0.84; depth: 0.91" position="-2 2.2 -4.69305"></a-box>
+    <a-box visible="false" static-body geometry="width: 1.32; height: 0.88; depth: 6.5" position="-4.5 2.2 -1.89"></a-box>
+    <a-box visible="false" static-body geometry="width: 2; depth: 6.6" position="-4.25 0.44986 -1.87968"></a-box>
+    <a-box visible="false" static-body geometry="width: 1.36; depth: 1.8; height: 1.7" position="0.49937 1.79327 -4.2595"></a-box>
+    <a-box visible="false" static-body geometry="width: 11.76; depth: 0.28; height: 3.3" position="0.48163 1.62952 -5.31212"></a-box>
+    <a-box visible="false" static-body geometry="width: 0.3; depth: 11; height: 3.3" position="-5.24543 1.63 0.0963"></a-box>
+    <a-box visible="false" static-body geometry="width: 0.3; depth: 11; height: 3.3" position="5.24543 1.63 0.0963"></a-box>
+    <a-box visible="false" static-body geometry="width: 11.76; depth: 0.28; height: 3.3" position="0.48163 1.62952 5.31212"></a-box>
+</a-entity>
+
+<a-box id="#instructions" mixin="interactable" geometry="width: 0.01; height: 1.25" position="-1.060 1.625 -7.003" rotation="0 -90 20" color="brown" dynamic-body cannon-body>
+    <a-box id="#frame" position="0.005 0 0.1" geometry="width: 0.01; depth: 0.75" src="#visitor0"></a-box>
+    <a-entity position="0.01 0 -0.375" ui-slider="size: 1; max: 4" change-slides="" rotation="0 0 -90"></a-entity>
+</a-box>
+
+<a-box id="#plate" static-body plating position="-2.5 1.03 -7"  geometry="width: 0.5; height: 0.03; depth: 0.5"></a-box>
+
+<a-box id="#knife" mixin="interactable" dynamic-body scale="0.25 0.25 1" position="-1.971 1.2 -7.157"></a-box>
+
+<a-cylinder mixin="interactable" id="#pan" color="darkgrey" geometry="radius: 0.4; height: 0.04" dynamic-body position="-3.74044 1.14 -4.56064" hot burn-meat></a-cylinder>
+<a-cylinder 
+    mixin="interactable" id="#patty" class="food meat" 
+    color="#FF7F7F" geometry="radius: 0.15; height: 0.05" 
+    dynamic-body position="-3.74044 1.5 -4.56064"
+    cooking-animation> 
+</a-cylinder>
+<a-cylinder 
+    mixin="interactable" class="food meat" 
+    color="#FF7F7F" geometry="radius: 0.15; height: 0.05" 
+    dynamic-body position="-3.74044 1.6 -3.56064"
+    cooking-animation> 
+</a-cylinder>
+<a-cylinder 
+    mixin="interactable" class="food meat" 
+    color="#FF7F7F" geometry="radius: 0.15; height: 0.05" 
+    dynamic-body position="-3.74044 1.8 -3.56064"
+    cooking-animation> 
+</a-cylinder>

@@ -76,23 +76,24 @@
               
               burner.setAttribute('animation', {
                 property: 'color',
-                from: el.getAttribute('color'),
-                to: '#880000',
+                from: '#000000',
+                to: '#8B0000',
                 dur: 2000
               });
             }
             else if (el.getAttribute('rotation').y > 90 && el.getAttribute('rotation').y <= 180) {
               burner.setAttribute('animation', {
                 property: 'color',
-                from: el.getAttribute('color'),
+                from: '#8B0000',
                 to: '#FF0000',
                 dur: 2000
               });
+
             }
             else {
               burner.setAttribute('animation', {
                 property: 'color',
-                from: el.getAttribute('color'),
+                from: '#8B0000',
                 to: '#000000',
                 dur: 2000
               });
@@ -108,12 +109,12 @@
           el.addEventListener('body-loaded', function (event) {
             var body = event.detail.body;
             var id = body.el.id;
-            if (id == '#instruction') {
+            if (id === '#instruction') {
               var boxShape = new CANNON.Box(new CANNON.Vec3(0.01, 0.63, 0.5));
               body.shapes = [boxShape];
               body.shapeOffsets = [new CANNON.Vec3(0, 0, 0)];
             }
-            else if (id == "#plate") {
+            else if (id === "#plate") {
               console.log("helol");
             }
           });
@@ -126,6 +127,7 @@
           var el= this.el;
           var frame = document.getElementById("#frame");
           var img = document.getElementsByTagName('img');
+          
           el.addEventListener('change', function (event) {
             var value = event.detail.value;
             if (value < 0) {
@@ -192,8 +194,16 @@
               sandwichParts[sandwichParts.length-1].classList.contains("bread")
             ) {
               var plate = document.getElementById("#plate");
-              plate.setAttribute('particle-system', 
-                'preset: default; size: 0.2; sizeSpread: 0.5; direction: 0.3; accelerationValue: 0 1 0; accelerationSpread: 1 1 1; velocityValue: 0 2 0; velocitySpread: 0 2 0;'
+              plate.setAttribute('particle-system', {
+                  preset: 'default',
+                  size: 0.2,
+                  sizeSpread: 0.5,
+                  direction: 0.3,
+                  accelerationValue: '0 1 0',
+                  accelerationSpread: '1 1 1',
+                  velocityValue: '0 2 0',
+                  velocitySpread: '0 2 0'
+                }
               )
               el.isFinished = 1;
               el.startTimer = time
@@ -201,7 +211,7 @@
           }
           else if (el.isFinished == 1 && time - el.startTimer > 3000) {
             var sceneSelector = document.getElementById("scene-selector");
-            sceneSelector.setAttribute("template", "src: src/scenes/scene_selector.html");
+            sceneSelector.setAttribute("template", "src: src/scenes/scene_selector_page.html");
           }
 
           
@@ -434,7 +444,109 @@
         },
       })
 
-      
+      AFRAME.registerComponent('console-log', {
+        init: function() {
+          this.el.setAttribute("class", "food");
+          this.el.setAttribute("class", "edi koczi");
+          this.el.setAttribute("class", this.el.getAttribute("class") + " shomi")
+          var koczi = document.getElementsByClassName("shomi");
+          console.log(koczi);
+          console.log(this.el);
+        },
+      })
+
+      AFRAME.registerComponent('hot', {
+        init: function() {
+          var el = this.el;
+          var patties = document.getElementsByClassName("meat");
+          el.isHot = false;
+          for (var k = 0; k < patties.length; k++) {
+            var patty = patties[k];
+            patty.isMeatOn = false;
+            patty.isCooking = false;
+          }
+
+          el.addEventListener("collide", function (event) {
+            var body = event.detail.body;
+            var target = event.detail.target;
+            if (body.el.classList.contains("burner") && (body.el.getAttribute("color") == "rgba(255,0,0,1)" || body.el.getAttribute("color") == "rgba(139,0,0,1)")) {
+              el.isHot = true;
+            }
+            if (body.el.classList.contains("meat")) {
+              body.el.isMeatOn = true;
+              if (el.isHot == true && body.el.isCooking == false) {
+                body.el.isCooking = true;
+                
+                body.el.emit("cooking", null, false);
+              }
+            }
+            
+          })
+        },
+
+        tick: function(time, timeDelta) {
+          var el = this.el;
+          var patties = document.getElementsByClassName("meat");
+          for (var k = 0; k < patties.length; k++) {
+            var patty = patties[k];
+
+            if (el.isHot == true && patty.isMeatOn == true) {
+              patty.emit("resume-cooking", null, false);
+            }
+            else {
+              patty.emit("pause-cooking", null, false);
+            }
+
+            var panPos = el.body.position;
+            var pattyPos = patty.body.position;
+            var panGeometry = el.getAttribute('geometry');
+            var pattyGeometry = patty.getAttribute('geometry');
+
+            const pattyDeltaX = panPos.x - pattyPos.x;
+            const pattyDeltaY = panPos.y - pattyPos.y;
+            const pattyDeltaZ = panPos.z - pattyPos.z;
+
+            if (Math.abs(pattyDeltaX) < panGeometry.radius * 2 && Math.abs(pattyDeltaY) < (panGeometry.height + pattyGeometry.height + 0.2)/2 && Math.abs(pattyDeltaZ) < panGeometry.radius * 2) {
+              patty.isMeatOn = true;
+            }
+            else {
+              patty.isMeatOn = false;
+            }
+          }
+          
+        },
+      })
+
+      AFRAME.registerComponent("cooking-animation", {
+        init: function() {
+          var el = this.el;
+          el.setAttribute('animation', {
+            property: 'color',
+            from: "#FF7F7F",
+            to: '#542D2D',
+            dur: 30000,
+            startEvents: ["cooking"],
+            pauseEvents: ["pause-cooking"],
+            resumeEvents: ["resume-cooking"],
+          });
+
+          el.addEventListener("animationcomplete", function () {
+            el.classList.add("cooked");
+          })
+          
+          // el.addEventListener("pause-cooking", function() {
+          //   console.log("paused")
+          // })
+
+          // el.addEventListener("resume-cooking", function() {
+          //   console.log("resumed")
+          // })
+
+          // el.addEventListener("cooking", function() {
+          //   console.log("cooking")
+          // })
+        }
+      })
     </script>
     
     <!--script src="./src/index.js"></script-->
@@ -446,10 +558,10 @@
         <a-asset-item id="kitchen-gltf" src="assets/models/kitchen2.gltf"></a-asset-item>
         <a-asset-item id="sandwich-gltf" src="assets/models/SANDWICH_REVAMPED.gltf"></a-asset-item>
 
-        <img id="visitor0" src="assets/images/visitor_1.png">
-        <img id="visitor1" src="assets/images/visitor_2.png">
-        <img id="visitor2" src="assets/images/visitor_3.png">
-        <img id="visitor3" src="assets/images/visitor_4.png">
+        <img id="visitor0" class="scene1" src="assets/images/visitor_1.png">
+        <img id="visitor1" class="scene1" src="assets/images/visitor_2.png">
+        <img id="visitor2" class="scene1" src="assets/images/visitor_3.png">
+        <img id="visitor3" class="scene1" src="assets/images/visitor_4.png">
 
         <a-mixin id="interactable"
           class="interactable"
@@ -468,9 +580,9 @@
                       colliderEndEventProperty: clearedEls;">
         </a-mixin>
         <a-mixin id="burner"
-          geometry="primitive: cylinder; height: 0.1; radius: 1"
-          material="color: black"
-          scale="0.33 0.33 0.33">
+          geometry="primitive: cylinder; height: 0.033; radius: 0.33"
+          static-body
+          >
         </a-mixin>
         <a-mixin id="cube"
           geometry="primitive: box; width: 0.5; height: 0.5; depth: 0.5">
@@ -491,7 +603,7 @@
         <a-entity id="#lhand" mixin="physics-hand" hand-controls="hand: left"></a-entity>
       </a-entity>
 
-      <a-entity id="scene-selector" template="src: src/scenes/scene_selector.html"></a-entity>
+      <a-entity id="scene-selector" template="src: src/scenes/scene1.html"></a-entity>
       
       <a-plane static-body rotation="90 0 0" geometry="width: 100; height: 100" scale="1000 1000 1000"></a-plane>
       <a-entity environment></a-entity>
