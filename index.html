@@ -19,37 +19,6 @@
     <script src="https://unpkg.com/aframe-gltf-part-component/dist/aframe-gltf-part-component.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-particle-system-component@1.1.4/dist/aframe-particle-system-component.min.js"></script>    
     <script>
-      // AFRAME.registerComponent('add-body', {
-      //   schema: {
-      //     bodyType: { default: 'static', oneOf: ['static', 'dynamic'] },
-      //     shape: {default: 'auto', oneOf: ['auto', 'box', 'cylinder', 'sphere', 'hull', 'mesh', 'none']},
-      //   },
-
-      //   init: function() {
-      //     var el = this.el;
-      //     var bodyType = this.data.bodyType;
-      //     var shape = this.data.shape;
-      //     el.setAttribute('dynamic-body');
-      //     // el.addEventListener('model-loaded', function (event) {
-      //     //   if (bodyType == 'static') {
-      //     //     el.setAttribute('static-body', 'shape: ' + shape);
-      //     //   } else if (bodyType == 'dynamic') {
-      //     //     el.setAttribute('dynamic-body', 'shape: ' + shape);
-      //     //   }
-      //     // });
-          
-      //   },
-
-      //   tick: function(time, timedelta) {
-      //     // var el = this.el;
-      //     // if (time > 5000) {
-      //     //   // if (!el.getAttribute("static-body")) {
-              
-      //     //   // }
-      //     // }
-      //   }
-      // });
-
       AFRAME.registerComponent('change-scene', {
         schema: {
           scene: { type: 'string', oneOf: ['scene1', 'scene2', 'scene3']},
@@ -138,8 +107,9 @@
         init: function () {
           var el= this.el;
           var frame = document.getElementById("#frame");
-          var img = document.getElementsByTagName('img');
-          var images = document.getElementsByClassName(this.data.scene);
+          var images = document.getElementsByTagName('img');
+          var scene = this.data.scene;
+          var filteredImages = Array.from(images).filter(image => image.classList.contains(scene));
 
           el.addEventListener('change', function (event) {
             var value = event.detail.value;
@@ -147,9 +117,9 @@
               value = Math.max(value, 0.01);
             }
             else if (value > 0) {
-              value = Math.min(value, 3.99);
+              value = Math.min(value, filteredImages.length - 0.01);
             }
-            frame.setAttribute('src', '#' + img[Math.trunc(value)].id);
+            frame.setAttribute('src', '#' + filteredImages[Math.trunc(value)].id);
           });
         }
       })
@@ -504,33 +474,6 @@
         }
       })
 
-      AFRAME.registerComponent('console-log', {
-        init: function () {
-          var el=this.el;
-          el.startTimer = 100000000000;
-        },
-
-        tick: function (time, timeDelta) {
-          // var el=this.el;
-          // var shomi = document.getElementById("#shomi");
-          // var shomi2 = document.getElementById("#shomi2");
-          // if (el.classList.contains("food")){
-          //   el.classList.remove("food");
-          //   el.classList.add("poop");
-          //   // el.removeAttribute("dynamic-body");
-          //   // var shomi2 = shomi.cloneNode(false);
-          //   // console.log(shomi2);
-          //   shomi.setParent(shomi2);
-            
-            
-          // }
-          // else if (el.classList.contains("poop") && time - el.startTimer > 3000 ) {
-          //   el.startTimer = time;
-          // }
-
-        },
-      })
-
       AFRAME.registerComponent("add-sauce", {
         init: function () {
           var el =this.el;
@@ -742,8 +685,6 @@
         },
       })
 
-
-
       AFRAME.registerComponent("cooking-animation", {
         schema: {
           colorUncooked: {type: 'string', default: "#FF7F7F"},
@@ -769,7 +710,6 @@
       })
     </script>
     
-    <!--script src="./src/index.js"></script-->
   </head>
   <body>
     <a-scene physics="debug: true;">
@@ -779,10 +719,16 @@
         <a-asset-item id="kitchen-gltf" src="assets/models/kitchen1.gltf"></a-asset-item>
         <a-asset-item id="sandwich-gltf" src="assets/models/SANDWICH_REVAMPED.gltf"></a-asset-item>
 
-        <img id="visitor0" class="scene1" src="assets/images/visitor_1.png">
-        <img id="visitor1" class="scene1" src="assets/images/visitor_2.png">
-        <img id="visitor2" class="scene1" src="assets/images/visitor_3.png">
-        <img id="visitor3" class="scene1" src="assets/images/visitor_4.png">
+        <img id="instructions-png" class="scene1 scene2 scene3" src="assets/images/instructions.png">
+        <img id="instructions_scene1_1-png" class="scene1" src="assets/images/instructions_scene1_1.png">
+        <img id="instructions_scene1_2-png" class="scene1" src="assets/images/instructions_scene1_2.png">
+        <img id="instructions_scene2_1-png" class="scene2" src="assets/images/instructions_scene2_1.png">
+        <img id="instructions_scene2_3-png" class="scene2" src="assets/images/instructions_scene2_2.png">
+        <img id="instructions_scene2_2-png" class="scene2" src="assets/images/instructions_scene2_3.png">
+        <img id="instructions_scene3_1-png" class="scene3" src="assets/images/instructions_scene3_1.png">
+        <img id="instructions_scene3_3-png" class="scene3" src="assets/images/instructions_scene3_2.png">
+        <img id="instructions_scene3_2-png" class="scene3" src="assets/images/instructions_scene3_3.png">
+        <img id="bonapettit-png" class="scene1 scene2 scene3" src="assets/images/bonapettit.png">
 
         <a-mixin id="interactable"
           hoverable grabbable draggable>
@@ -822,7 +768,7 @@
         <a-entity id="#lhand" mixin="physics-hand" hand-controls="hand: left"></a-entity>
       </a-entity>
 
-      <a-entity id="scene-selector" template="src: src/scenes/scene1.html"></a-entity>
+      <a-entity id="scene-selector" template="src: src/scenes/scene2.html"></a-entity>
       
       <a-plane static-body rotation="90 0 0" geometry="width: 100; height: 100" scale="1000 1000 1000" position="0 0.05 0"></a-plane>
       <a-entity environment></a-entity>

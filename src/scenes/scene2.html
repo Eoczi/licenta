@@ -41,8 +41,8 @@
 </a-entity>
 
 <a-box id="#instructions" mixin="interactable" geometry="width: 0.01" position="0.628 1.679 -6.329" rotation="0 -90 0" color="#654321" static-body="shape: none" shape__main="halfExtents: 0.01 0.6s 0.5; offset: 0 -0.1 0">
-    <a-box id="#frame" position="0.005 0 0" geometry="width: 0.01;" src="#visitor0"></a-box>
-    <a-entity position="0.001 -0.57 0" ui-slider="size: 1; max: 4" change-slides="scene: #scene2" rotation="90 0 -90"></a-entity>
+    <a-box id="#frame" position="0.005 0 0" geometry="width: 0.01;" src="#instructions-png"></a-box>
+    <a-entity position="0.001 -0.57 0" ui-slider="size: 1; max: 5" change-slides="scene: scene2" rotation="90 0 -90"></a-entity>
 </a-box>
 
 <a-box id="#plate" static-body plating="scene: scene2" position="-2.5 1.03 -7" geometry="width: 0.7; height: 0.03; depth: 0.7"></a-box>
