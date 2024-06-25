@@ -19,31 +19,40 @@
     <script src="https://unpkg.com/aframe-gltf-part-component/dist/aframe-gltf-part-component.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-particle-system-component@1.1.4/dist/aframe-particle-system-component.min.js"></script>    
     <script>
-      AFRAME.registerComponent('add-body', {
-        schema: {
-          bodyType: { default: 'static', oneOf: ['static', 'dynamic'] },
-          shape: {default: 'auto', oneOf: ['auto', 'box', 'cylinder', 'sphere', 'hull', 'mesh', 'none']},
-        },
+      // AFRAME.registerComponent('add-body', {
+      //   schema: {
+      //     bodyType: { default: 'static', oneOf: ['static', 'dynamic'] },
+      //     shape: {default: 'auto', oneOf: ['auto', 'box', 'cylinder', 'sphere', 'hull', 'mesh', 'none']},
+      //   },
 
-        init: function() {
-          var el = this.el;
-          var bodyType = this.data.bodyType;
-          var shape = this.data.shape;
+      //   init: function() {
+      //     var el = this.el;
+      //     var bodyType = this.data.bodyType;
+      //     var shape = this.data.shape;
+      //     el.setAttribute('dynamic-body');
+      //     // el.addEventListener('model-loaded', function (event) {
+      //     //   if (bodyType == 'static') {
+      //     //     el.setAttribute('static-body', 'shape: ' + shape);
+      //     //   } else if (bodyType == 'dynamic') {
+      //     //     el.setAttribute('dynamic-body', 'shape: ' + shape);
+      //     //   }
+      //     // });
           
-          el.addEventListener('model-loaded', function (event) {
-            if (bodyType == 'static') {
-              el.setAttribute('static-body', 'shape: ' + shape);
-            } else if (bodyType == 'dynamic') {
-              el.setAttribute('dynamic-body', 'shape: ' + shape);
-            }
-          });
-          
-        }
-      });
+      //   },
+
+      //   tick: function(time, timedelta) {
+      //     // var el = this.el;
+      //     // if (time > 5000) {
+      //     //   // if (!el.getAttribute("static-body")) {
+              
+      //     //   // }
+      //     // }
+      //   }
+      // });
 
       AFRAME.registerComponent('change-scene', {
         schema: {
-          scene: { type: 'string', oneOf: ['scene1', 'scene2']},
+          scene: { type: 'string', oneOf: ['scene1', 'scene2', 'scene3']},
         },
 
         init: function () {
@@ -123,7 +132,7 @@
 
       AFRAME.registerComponent('change-slides', {
         schema: {
-          scene: { type: 'string', oneOf: ['scene1', 'scene2']},
+          scene: { type: 'string', oneOf: ['scene1', 'scene2', 'scene3']},
         },
 
         init: function () {
@@ -147,7 +156,7 @@
 
       AFRAME.registerComponent('plating', {
         schema: {
-          scene: { type: 'string', oneOf: ['scene1', 'scene2']},
+          scene: { type: 'string', oneOf: ['scene1', 'scene2', 'scene3']},
         },
 
         init: function () {
@@ -182,8 +191,7 @@
                 foods[i].classList.remove("sandwich");
               }
             }
-            el.sandwichParts = document.getElementsByClassName("sandwich");
-            var sandwichParts = el.sandwichParts;
+            var sandwichParts = document.getElementsByClassName("sandwich");;
 
             function sortByYPosition(collection) {
               return Array.from(collection).sort((entityA, entityB) => {
@@ -196,28 +204,33 @@
               sandwichParts = sortByYPosition(sandwichParts);
             }
             
-            if (  
-              sandwichParts.length >= 3 && 
-              sandwichParts[0].classList.contains("bread") && 
-              sandwichParts[sandwichParts.length-1].classList.contains("bread")
-            ) {
-              var plate = document.getElementById("#plate");
-              if (this.data.scene == "scene1") {
-                plate.setAttribute('particle-system', 'preset: default; size: 0.2; sizeSpread: 0.5; direction: 0.3; accelerationValue: 0 1 0; accelerationSpread: 1 1 1; velocityValue: 0 2 0; velocitySpread: 0 2 0;')
-                el.isFinished = 1;
-                el.startTimer = time;
-              }
-
-              if (this.data.scene == "scene2") {
-                console.log("helol");
-                var hasPatty = Array.prototype.some.call(sandwichParts, part => part.classList.contains('cooked'));
-                if (hasPatty) {
-                  plate.setAttribute('particle-system', 'preset: default; size: 0.2; sizeSpread: 0.5; direction: 0.3; accelerationValue: 0 1 0; accelerationSpread: 1 1 1; velocityValue: 0 2 0; velocitySpread: 0 2 0;')
+            if (this.data.scene != 'scene3') {
+              if (  
+                sandwichParts.length >= 3 && 
+                sandwichParts[0].classList.contains("bread") && 
+                sandwichParts[sandwichParts.length-1].classList.contains("bread")
+              ) {
+                if (this.data.scene == "scene1") {
+                  el.setAttribute('particle-system', 'preset: default; size: 0.2; sizeSpread: 0.5; direction: 0.3; accelerationValue: 0 1 0; accelerationSpread: 1 1 1; velocityValue: 0 2 0; velocitySpread: 0 2 0;')
                   el.isFinished = 1;
                   el.startTimer = time;
                 }
+
+                if (this.data.scene == "scene2") {
+                  console.log("helol");
+                  var hasPatty = Array.prototype.some.call(sandwichParts, part => part.classList.contains('cooked'));
+                  if (hasPatty) {
+                    el.setAttribute('particle-system', 'preset: default; size: 0.2; sizeSpread: 0.5; direction: 0.3; accelerationValue: 0 1 0; accelerationSpread: 1 1 1; velocityValue: 0 2 0; velocitySpread: 0 2 0;')
+                    el.isFinished = 1;
+                    el.startTimer = time;
+                  }
+                }
               }
-              
+            }
+            else if (sandwichParts.length > 0 && sandwichParts[0].classList.contains("cooked")){
+              el.setAttribute('particle-system', 'preset: default; size: 0.2; sizeSpread: 0.5; direction: 0.3; accelerationValue: 0 1 0; accelerationSpread: 1 1 1; velocityValue: 0 2 0; velocitySpread: 0 2 0;')
+              el.isFinished = 1;
+              el.startTimer = time;
             }
           }
           else if (el.isFinished == 1 && time - el.startTimer > 10000) {
@@ -433,22 +446,27 @@
           }
         },
       });
-      AFRAME.registerComponent('plate-geometry', {
+      AFRAME.registerComponent('pan-geometry', {
         remove: function () {
           this.el.removeObject3D('mesh');
         },
 
         init: function() {
-          const geometryEdge = new THREE.CylinderGeometry( 0.75, 0.55, 0.1, 8, 1, true); 
-          const geometryBase = new THREE.CylinderGeometry( 0.55, 0.55, 0.01, 8);
-          const materialEdge = new THREE.MeshStandardMaterial({ color: 0xffff00, side: THREE.DoubleSide });
+          const geometryEdge = new THREE.CylinderGeometry( 0.5, 0.4, 0.1, 8, 1, true); 
+          const geometryBase = new THREE.CylinderGeometry( 0.4, 0.4, 0.01, 8);
+          const geometryHandle = new THREE.BoxGeometry( 0.15, 0.1, 0.75);
+
+          const materialEdge = new THREE.MeshStandardMaterial({ color: 0x333333, side: THREE.DoubleSide });
           const cylinderEdge = new THREE.Mesh(geometryEdge, materialEdge);
-          const materialBase = new THREE.MeshStandardMaterial();
+          const materialBase = new THREE.MeshStandardMaterial({ color: 0x333333 });
           const cylinderBase = new THREE.Mesh(geometryBase, materialBase);
+          const boxHandle = new THREE.Mesh(geometryHandle, materialBase);
           cylinderBase.position.set(0, -0.05, 0);
+          boxHandle.position.set(0, 0 , -0.75);
           const group = new THREE.Group();
           group.add(cylinderBase);
           group.add(cylinderEdge);
+          group.add(boxHandle);
           this.el.setObject3D('mesh', group);
         },
       })
@@ -473,9 +491,9 @@
           var el= this.el;
           if (el.states.includes("stretched")) {
             if (el.scaleClone.x != el.object3D.scale.x) {
-              el.object3D.scale.y -= (el.object3D.scale.x - el.scaleClone.x) * 1.75;
+              el.object3D.scale.y -= (el.object3D.scale.x - el.scaleClone.x) * 1.5;
               el.scaleClone.x = el.object3D.scale.x;
-              if (el.object3D.scale.y <= 0.05) {
+              if (el.object3D.scale.y <= 0.1) {
                 el.removeAttribute("stretchable");
                 el.classList.add("dough");
                 el.removeAttribute("dynamic-body");
@@ -594,14 +612,13 @@
 
             var panPos = el.body.position;
             var pattyPos = patty.body.position;
-            var panGeometry = el.getAttribute('geometry');
             var pattyGeometry = patty.getAttribute('geometry');
 
             const pattyDeltaX = panPos.x - pattyPos.x;
             const pattyDeltaY = panPos.y - pattyPos.y;
             const pattyDeltaZ = panPos.z - pattyPos.z;
 
-            if (Math.abs(pattyDeltaX) < panGeometry.radius * 2 && Math.abs(pattyDeltaY) < (panGeometry.height + pattyGeometry.height + 0.2)/2 && Math.abs(pattyDeltaZ) < panGeometry.radius * 2) {
+            if (Math.abs(pattyDeltaX) < 0.5 * 2 && Math.abs(pattyDeltaY) < (0.2 + pattyGeometry.height + 0.2)/2 && Math.abs(pattyDeltaZ) < 0.5 * 2) {
               patty.isMeatOn = true;
             }
             else {
@@ -612,14 +629,134 @@
         },
       })
 
+      AFRAME.registerComponent("open-oven", {
+        schema: {
+          doorId: {type: 'string', default: '#door'}
+        },
+
+        init: function () {
+          this.direction = -1;
+          this.door = document.getElementById(this.data.doorId).object3D;
+          this.handle = this.el.object3D;
+          this.grabbed = false;
+          this.lastPosition = null;
+
+          this.controllers = Array.prototype.slice.call(document.querySelectorAll('a-entity[hand-controls]'));
+          
+          this.setupEvents();
+        },
+
+        setupEvents: function () {
+          this.controllers.forEach(controller => {
+            controller.addEventListener('triggerdown', this.onTriggerDown.bind(this));
+            controller.addEventListener('triggerup', this.onTriggerUp.bind(this));
+          });
+        },
+
+        onTriggerDown: function (e) {
+          var hand = e.target.object3D;
+          var handBB = new THREE.Box3().setFromObject(hand);
+          var handleBB = new THREE.Box3().setFromObject(this.handle);
+          var collision = handBB.intersectsBox(handleBB);
+
+          if (collision) {
+            this.grabbed = hand;
+            this.grabbed.visible = false;
+            this.lastPosition = this.grabbed.position.clone();
+          }
+        },
+
+        onTriggerUp: function () {
+          if (this.grabbed) {
+            this.grabbed.visible = true;
+            this.grabbed = false;
+            this.lastPosition = null;
+          }
+        },
+
+        tick: function () {
+          if (this.grabbed) {
+            
+            var currentPosition = this.grabbed.position.clone();
+            var deltaPosition = currentPosition.sub(this.lastPosition);
+
+            var rotationAxis = new THREE.Vector3(0, 0, this.direction);
+            var angle = deltaPosition.length() * 2;
+
+            var quaternion = new THREE.Quaternion().setFromAxisAngle(rotationAxis, angle);
+            this.door.quaternion.multiplyQuaternions(quaternion, this.door.quaternion);
+
+            this.lastPosition.copy(this.grabbed.position);
+            if (this.door.quaternion.z <= -0.450001 || this.door.quaternion.z >= 0.0001) {
+              this.direction = this.direction * -1;
+            }
+          }
+        }
+      })
+
+      AFRAME.registerComponent("start-oven", {
+        init: function () {
+          var el = this.el;
+          var handle = document.getElementById("#handle");
+          el.isInside= false;
+          el.startTimer = null;
+          el.pizza = null;
+          var isCooking = false;
+
+          el.addEventListener("pressed", function (event) {
+            if (el.isInside) {
+              var door = document.getElementById("#door");
+              if (door.object3D.quaternion.z > -0.05 && door.object3D.quaternion.z < 0.05) {
+                if (!isCooking) {
+                  el.pizza.emit("cooking");
+                  isCooking = true;
+                  el.pizza.classList.remove("sauced");
+                  el.pizza.classList.add("food");
+                } 
+              }
+            }
+          })
+        },
+
+        tick: function(time, timeDelta) {
+          var el = this.el;
+          var pizzas = document.getElementsByClassName("sauced");
+          var oven = document.getElementById("#inside-oven");
+          for (var k = 0; k < pizzas.length; k++) {
+            var pizza = pizzas[k];
+
+            var pizzaBB = new THREE.Box3().setFromObject(pizza.object3D);
+            var ovenBB = new THREE.Box3().setFromObject(oven.object3D);
+            var collision = pizzaBB.intersectsBox(ovenBB);
+
+            if (collision) {
+              console.log("hello");
+              el.isInside= true;
+              el.pizza = pizza;
+            }
+            else {
+              el.isInside= false;
+            }
+          }
+          
+        },
+      })
+
+
+
       AFRAME.registerComponent("cooking-animation", {
+        schema: {
+          colorUncooked: {type: 'string', default: "#FF7F7F"},
+          colorCooked: {type: 'string', default: '#542D2D'}
+        },
+
         init: function() {
           var el = this.el;
           el.setAttribute('animation', {
             property: 'color',
-            from: "#FF7F7F",
-            to: '#542D2D',
-            dur: 30000,
+            from: this.data.colorUncooked,
+            to: this.data.colorCooked,
+            dur: 3000,
             startEvents: ["cooking"],
             pauseEvents: ["pause-cooking"],
             resumeEvents: ["resume-cooking"],
@@ -628,18 +765,6 @@
           el.addEventListener("animationcomplete", function () {
             el.classList.add("cooked");
           })
-          
-          // el.addEventListener("pause-cooking", function() {
-          //   console.log("paused")
-          // })
-
-          // el.addEventListener("resume-cooking", function() {
-          //   console.log("resumed")
-          // })
-
-          // el.addEventListener("cooking", function() {
-          //   console.log("cooking")
-          // })
         }
       })
     </script>
@@ -660,11 +785,8 @@
         <img id="visitor3" class="scene1" src="assets/images/visitor_4.png">
 
         <a-mixin id="interactable"
-          class="interactable"
-          hoverable grabbable draggable
-          event-set__hoveron="_event: hover-start; material.opacity: 0.8; transparent: true"
-          event-set__hoveroff="_event: hover-end; material.opacity: 1; transparent: false"
-        ></a-mixin>
+          hoverable grabbable draggable>
+        </a-mixin>
         <a-mixin
           id="physics-hand"
           physics-collider
@@ -687,7 +809,8 @@
 
       <a-entity id="#camera-rig" position="0 0 3" rotation="0 0 0">
         <a-camera id="#head" look-controls wasd-controls>
-          <a-cursor raycaster="objects: .interactable"
+          <a-cursor
+            progressive-controls
             fuse="true"
             fusetimeout="500"
             position="0 0 -1"
@@ -699,9 +822,9 @@
         <a-entity id="#lhand" mixin="physics-hand" hand-controls="hand: left"></a-entity>
       </a-entity>
 
-      <a-entity id="scene-selector" template="src: src/scenes/scene3.html"></a-entity>
+      <a-entity id="scene-selector" template="src: src/scenes/scene1.html"></a-entity>
       
-      <a-plane static-body rotation="90 0 0" geometry="width: 100; height: 100" scale="1000 1000 1000"></a-plane>
+      <a-plane static-body rotation="90 0 0" geometry="width: 100; height: 100" scale="1000 1000 1000" position="0 0.05 0"></a-plane>
       <a-entity environment></a-entity>
     </a-scene>
     

@@ -9,8 +9,8 @@
     <a-cylinder id="#burner3" class="burner" color="#000000" mixin="burner" position="-1 0 -1"></a-cylinder>
 </a-entity>
 
-<a-box id="#table" position="0 0.25 -3" geometry="width: 3; depth: 2; height: 0.5" color="grey">
-    <a-box id="#table-top" static-body position="0 0.325 0" geometry="width: 4; depth: 3; height: 0.15" color="grey"></a-box>
+<a-box id="#table" position="0 0.375 -3" geometry="width: 3; depth: 2; height: 0.75" color="grey">
+    <a-box id="#table-top" static-body position="0 0.525 0" geometry="width: 4; depth: 3; height: 0.15" color="grey"></a-box>
     <a-box static-body geometry="width: 3; depth: 2; height: 0.5" visible="false"></a-box>
 </a-box>
 
@@ -18,59 +18,143 @@
     <a-entity scale="0.14 0.33 0.26" gltf-part="src: #kitchen-parts-gltf; part: Object_104" position="5.10128 27.77902 -33.80536" rotation="0 90 0">
         <a-entity gltf-part="src: #kitchen-parts-gltf; part: Object_110" position="-6.677 -12.314 -18.796" rotation="90 -90 90"></a-entity>
     </a-entity>
-    <a-entity scale="0.24 0.31 0.357" gltf-part="src: #kitchen-parts-gltf; part: Object_54" position="-32.86938 13.80559 -13.26316">
-        <a-entity scale="0.9 0.9 0.5" gltf-part="src: #kitchen-parts-gltf; part: Object_100" position="5.697 8.136 6.869"></a-entity>
+    <a-entity id="#door" scale="0.24 0.31 0.357" position="-32.86938 4.939 -13.26316">
+        <a-entity id="oven-button" ui-button scale="30 30 30" position="2.295 36.714 19.291" rotation="90 90 0" start-oven></a-entity>
+        <a-entity gltf-part="src: #kitchen-parts-gltf; part: Object_54" position="0 27.784 0">
+            <a-box visible="false"  geometry="depth: 50; height: 43; width: 4" static-body="shape: none" shape__main="halfExtents: 0.05 0.35 0.9" position="0 -6 0"></a-box>
+        </a-entity>
+        <a-entity id="#handle" scale="0.9 0.9 0.5" gltf-part="src: #kitchen-parts-gltf; part: Object_100" open-oven position="5.697 34.910 6.869"></a-entity>
+    
     </a-entity>
 </a-entity>
+<a-box color="darkgrey" geometry="width: 1.8; height: 0.05; depth: 1.8" static-body  position="-4.237 0.605 -4.346"></a-box>
 <a-entity id="#kitchen-body" position="0 0.07 -3">
-    <a-box material="color: #555555; side: back" geometry="depth: 1.77; height: 0.67; width: 1.77" position="-4.205 0.622 -1.329"></a-box>
+    <a-box id="#inside-oven" material="color: #555555; side: back" geometry="depth: 1.77; height: 0.57; width: 1.77" position="-4.205 0.622 -1.329"></a-box>
     <a-box visible="false" static-body geometry="width: 6.53; depth: 1.81" position="-2.09 0.45085 -4.25387"></a-box>
     <a-box visible="false" static-body geometry="width: 6.33; height: 0.84; depth: 0.91" position="-2 2.2 -4.69305"></a-box>
     <a-box visible="false" static-body geometry="width: 1.32; height: 0.88; depth: 6.5" position="-4.5 2.2 -1.89"></a-box>
-    <a-box visible="false" static-body geometry="width: 2; depth: 6.6" position="-4.25 0.44986 -1.87968"></a-box>
+    <a-box visible="false" static-body geometry="width: 2; depth: 1.8" position="-4.25 0.45 0.500"></a-box>
+    <a-box visible="false" static-body geometry="width: 2; depth: 1.8" position="-4.25 0.45 -3.15"></a-box>
+    <a-box visible="true" color="black" static-body geometry="width: 2; height: 0.03; depth: 1.8" position="-4.25 0.958 -1.317"></a-box>
     <a-box visible="false" static-body geometry="width: 1.36; depth: 1.8; height: 1.7" position="0.49937 1.79327 -4.2595"></a-box>
-    <a-box visible="false" static-body geometry="width: 11.76; depth: 0.28; height: 3.3" position="0.48163 1.62952 -5.31212"></a-box>
+    <a-box visible="false" static-body geometry="width: 11.76; depth: 00.28; height: 3.3" position="0.48163 1.62952 -5.31212"></a-box>
     <a-box visible="false" static-body geometry="width: 0.3; depth: 11; height: 3.3" position="-5.24543 1.63 0.0963"></a-box>
-    <a-box visible="false" static-body geometry="width: 0.3; depth: 11; height: 3.3" position="5.24543 1.63 0.0963"></a-box>
-    <a-box visible="false" static-body geometry="width: 11.76; depth: 0.28; height: 3.3" position="0.48163 1.62952 5.31212"></a-box>
 </a-entity>
 
-<a-box id="#instructions" mixin="interactable" geometry="width: 0.01; height: 1.25" position="-1.060 1.625 -7.003" rotation="0 -90 20" color="brown" dynamic-body cannon-body>
-    <a-box id="#frame" position="0.005 0 0.1" geometry="width: 0.01; depth: 0.75" src="#visitor0"></a-box>
-    <a-entity position="0.01 0 -0.375" ui-slider="size: 1; max: 4" change-slides="scene: #scene2" rotation="0 0 -90"></a-entity>
+<a-box id="#instructions" mixin="interactable" geometry="width: 0.01" position="0.628 1.679 -6.329" rotation="0 -90 0" color="#654321" static-body="shape: none" shape__main="halfExtents: 0.01 0.6s 0.5; offset: 0 -0.1 0">
+    <a-box id="#frame" position="0.005 0 0" geometry="width: 0.01;" src="#visitor0"></a-box>
+    <a-entity position="0.001 -0.57 0" ui-slider="size: 1; max: 4" change-slides="scene: #scene3" rotation="90 0 -90"></a-entity>
 </a-box>
 
-<a-box id="#plate" static-body plating="scene: scene3" position="-2.5 1.03 -7"  geometry="width: 0.5; height: 0.03; depth: 0.5"></a-box>
+<a-box id="#plate" static-body plating="scene: scene3" position="-2.5 1.03 -7"  geometry="width: 0.7; height: 0.03; depth: 0.7"></a-box>
 
-<a-box id="#knife" mixin="interactable" dynamic-body scale="0.25 0.25 1" position="-0.971 1.2 -3.157"></a-box>
+<a-entity id="#knife" mixin="interactable" dynamic-body="shape: none; mass: 5"
+    shape__blade="shape: box; halfExtents: 0.0025 0.1 0.2; offset: 0 -0.064 -0.2" 
+    shape__handle="shape: box; halfExtents: 0.0125 0.0375 0.15; offset: 0 0 0.15" 
+    position="-2.5 1.25 -7">
+    <a-box color="grey" position="0 -0.064 -0.2" geometry="width: 0.005; height: 0.2; depth: 0.4" material="roughness: 0.3"></a-box>
+    <a-box color="purple" position="0 0 0.15" geometry="width: 0.025; height: 0.075; depth: 0.3"></a-box>
+</a-entity>
 
 <a-cylinder 
-    mixin="interactable" console-log 
+    mixin="interactable"
     dough-stretch stretchable 
     color="#FCF8C8" geometry="radius: 0.2; height: 0.25" 
     dynamic-body="shape: box; mass: 3" body-merger="dynamic-body" 
-    position="0.5 2 0">
+    cooking-animation="colorUncooked: #FCF8C8; colorCooked: #DBA24A"
+    position="0.5 0.6 -1.1">
     <a-entity id="#sauce" 
         visible="false" material="color: red" 
         geometry="primitive: cylinder; radius: 0.175; height: 0.25" 
-        position="0 0.03 0"></a-entity>
+        ></a-entity>
 </a-cylinder>
 
-<a-entity id="#tomato" mixin="interactable" dynamic-body="shape: sphere" body-merger cuttable="geometry: sphere" position="-0.465 1 -7.473">
-    <a-sphere mixin="interactable" color="tomato" geometry="radius: 0.15; theta-start: 0; theta-length: 50" base="place: bottom; color: tomato"></a-sphere>
-    <a-sphere mixin="interactable" color="tomato" geometry="radius: 0.15; theta-start: 50; theta-length: 20" base="place: both; color: tomato"></a-sphere>
-    <a-sphere mixin="interactable" color="tomato" geometry="radius: 0.15; theta-start: 70; theta-length: 20" base="place: both; color: tomato"></a-sphere>
-    <a-sphere mixin="interactable" color="tomato" geometry="radius: 0.15; theta-start: 90; theta-length: 20" base="place: both; color: tomato"></a-sphere>
-    <a-sphere mixin="interactable" color="tomato" geometry="radius: 0.15; theta-start: 110; theta-length: 20" base="place: both; color: tomato"></a-sphere>
-    <a-sphere mixin="interactable" color="tomato" geometry="radius: 0.15; theta-start: 130; theta-length: 50" base="place: top; color: tomato"></a-sphere>
-</a-entity>
+<a-cylinder 
+    mixin="interactable"
+    dough-stretch stretchable 
+    color="#FCF8C8" geometry="radius: 0.2; height: 0.25" 
+    dynamic-body="shape: box; mass: 3" body-merger="dynamic-body" 
+    cooking-animation="colorUncooked: #FCF8C8; colorCooked: #DBA24A"
+    position="1 0.52 -0.8">
+    <a-entity id="#sauce" 
+        visible="false" material="color: red" 
+        geometry="primitive: cylinder; radius: 0.175; height: 0.25" 
+        ></a-entity>
+</a-cylinder>
 
-<a-cylinder mixin="interactable" id="ketchup" add-sauce geometry="height: 0.5; radius: 0.1" material="color: red" position="0 1 0" dynamic-body="">
+<a-cylinder 
+    mixin="interactable"
+    dough-stretch stretchable 
+    color="#FCF8C8" geometry="radius: 0.2; height: 0.25" 
+    dynamic-body="shape: box; mass: 3" body-merger="dynamic-body" 
+    cooking-animation="colorUncooked: #FCF8C8; colorCooked: #DBA24A"
+    position="1.4 0.8 -1">
+    <a-entity id="#sauce" 
+        visible="false" material="color: red" 
+        geometry="primitive: cylinder; radius: 0.175; height: 0.25" 
+        ></a-entity>
+</a-cylinder>
+
+<a-cylinder 
+    mixin="interactable"
+    dough-stretch stretchable 
+    color="#FCF8C8" geometry="radius: 0.2; height: 0.25" 
+    dynamic-body="shape: box; mass: 3" body-merger="dynamic-body" 
+    cooking-animation="colorUncooked: #FCF8C8; colorCooked: #DBA24A"
+    position="1.3 0.52 -1.3">
+    <a-entity id="#sauce" 
+        visible="false" material="color: red" 
+        geometry="primitive: cylinder; radius: 0.175; height: 0.25" 
+        ></a-entity>
+</a-cylinder>
+
+<a-cylinder mixin="interactable" id="ketchup" add-sauce geometry="height: 0.5; radius: 0.1" material="color: red" position="0 2 -2" dynamic-body="">
     <a-cylinder geometry="height: 0.05; radius: 0.05" material="color: ForestGreen" position="0 0.25 0"></a-cylinder>
     <a-cone geometry="radius-bottom: 0.05; height: 0.1;" material="color: ForestGreen" position="0 0.25 0"></a-cone>
 </a-cylinder>
 
-<!-- <a-box geometry="width: 0.3; height: 0.3; depth: 0.3" id="#shomi" position="0 1 0"></a-box>
-<a-box geometry="width: 0.3; height: 0.3; depth: 0.3" id="#shomi2" position="0 2 0"></a-box> -->
+<a-entity mixin="interactable" position="1 0.1 -1.1" >
+    <a-box color="#654321" static-body geometry="width: 1.75; height: 0.1; depth: 1"></a-box>
+    <a-box color="#654321" static-body geometry="width: 0.1; height: 0.4; depth: 1" position="-0.875 0.25 0"></a-box>
+    <a-box color="#654321" static-body geometry="width: 0.1; height: 0.4; depth: 1" position="0.875 0.25 0"></a-box>
+    <a-box color="#654321" static-body geometry="width: 1.75; height: 0.4; depth: 0.1" position="0 0.25 0.5"></a-box>
+    <a-box color="#654321" static-body geometry="width: 1.75; height: 0.4; depth: 0.1" position="0 0.25 -0.5"></a-box>
+</a-entity>
+
+<a-entity mixin="interactable" position="-1 0.1 -1.1" >
+    <a-box color="#654321" static-body geometry="width: 1.75; height: 0.1; depth: 1"></a-box>
+    <a-box color="#654321" static-body geometry="width: 0.1; height: 0.4; depth: 1" position="-0.875 0.25 0"></a-box>
+    <a-box color="#654321" static-body geometry="width: 0.1; height: 0.4; depth: 1" position="0.875 0.25 0"></a-box>
+    <a-box color="#654321" static-body geometry="width: 1.75; height: 0.4; depth: 0.1" position="0 0.25 0.5"></a-box>
+    <a-box color="#654321" static-body geometry="width: 1.75; height: 0.4; depth: 0.1" position="0 0.25 -0.5"></a-box>
+</a-entity>
+
+<a-entity id="#ham" mixin="interactable" dynamic-body body-merger cuttable="geometry: cylinder" position="-1.433 0.353 -1.037" rotation="0 0 -90">
+    <a-sphere mixin="interactable" color="darkred" base="place: bottom; color: pink" geometry="radius: 0.1; theta-start: 0; theta-length: 90" position="0 0.125 0"></a-sphere>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 0.12 0"></a-cylinder>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 0.09 0"></a-cylinder>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 0.06 0"></a-cylinder>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 0.03 0"></a-cylinder>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 0 0"></a-cylinder>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 -0.03 0"></a-cylinder>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 -0.06 0"></a-cylinder>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 -0.09 0"></a-cylinder>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 -0.12 0"></a-cylinder>
+    <a-sphere mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; theta-start: 90; theta-length: 90" position="0 -0.125 0"></a-sphere>
+</a-entity>
+
+<a-entity id="#ham" mixin="interactable" dynamic-body body-merger cuttable="geometry: cylinder" position="-1 0.52 -1.1" rotation="0 0 -90">
+    <a-sphere mixin="interactable" color="darkred" base="place: bottom; color: pink" geometry="radius: 0.1; theta-start: 0; theta-length: 90" position="0 0.125 0"></a-sphere>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 0.12 0"></a-cylinder>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 0.09 0"></a-cylinder>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 0.06 0"></a-cylinder>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 0.03 0"></a-cylinder>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 0 0"></a-cylinder>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 -0.03 0"></a-cylinder>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 -0.06 0"></a-cylinder>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 -0.09 0"></a-cylinder>
+    <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 -0.12 0"></a-cylinder>
+    <a-sphere mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; theta-start: 90; theta-length: 90" position="0 -0.125 0"></a-sphere>
+</a-entity>
 
 
