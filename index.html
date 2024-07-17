@@ -8,7 +8,6 @@
     <script>
       delete AFRAME.components["grabbable"];
     </script>
-    <script src="https://unpkg.com/aframe-event-set-component@4.2.1/dist/aframe-event-set-component.min.js"></script>
     <script src="https://unpkg.com/super-hands@^3.0.4/dist/super-hands.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
     <script src="https://unpkg.com/aframe-physics-extras/dist/aframe-physics-extras.min.js"></script>
@@ -18,6 +17,7 @@
     <script src="https://unpkg.com/aframe-template-component@3.2.1/dist/aframe-template-component.min.js"></script>
     <script src="https://unpkg.com/aframe-gltf-part-component/dist/aframe-gltf-part-component.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-particle-system-component@1.1.4/dist/aframe-particle-system-component.min.js"></script>    
+    <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script>
     <script>
       AFRAME.registerComponent('change-scene', {
         schema: {
@@ -91,9 +91,6 @@
               body.shapes = [boxShape];
               body.shapeOffsets = [new CANNON.Vec3(0, 0, 0)];
             }
-            else if (id == "#plate") {
-              console.log("helol");
-            }
           });
           el.setAttribute("dynamic-body", "shape: box; mass: 5");
         }
@@ -131,6 +128,7 @@
 
         init: function () {
           this.el.isFinished = 0;
+          this.el.mask = document.getElementById("mask");
         },
         
         tick: function(time, timeDelta) {
@@ -184,15 +182,16 @@
                   el.setAttribute('particle-system', 'preset: default; size: 0.2; sizeSpread: 0.5; direction: 0.3; accelerationValue: 0 1 0; accelerationSpread: 1 1 1; velocityValue: 0 2 0; velocitySpread: 0 2 0;')
                   el.isFinished = 1;
                   el.startTimer = time;
+                  el.mask.emit("fadeout");
                 }
 
                 if (this.data.scene == "scene2") {
-                  console.log("helol");
                   var hasPatty = Array.prototype.some.call(sandwichParts, part => part.classList.contains('cooked'));
                   if (hasPatty) {
                     el.setAttribute('particle-system', 'preset: default; size: 0.2; sizeSpread: 0.5; direction: 0.3; accelerationValue: 0 1 0; accelerationSpread: 1 1 1; velocityValue: 0 2 0; velocitySpread: 0 2 0;')
                     el.isFinished = 1;
                     el.startTimer = time;
+                    el.mask.emit("fadeout");
                   }
                 }
               }
@@ -201,9 +200,11 @@
               el.setAttribute('particle-system', 'preset: default; size: 0.2; sizeSpread: 0.5; direction: 0.3; accelerationValue: 0 1 0; accelerationSpread: 1 1 1; velocityValue: 0 2 0; velocitySpread: 0 2 0;')
               el.isFinished = 1;
               el.startTimer = time;
+              el.mask.emit("fadeout");
             }
           }
-          else if (el.isFinished == 1 && time - el.startTimer > 10000) {
+          else if (el.isFinished == 1 && time - el.startTimer > 5000) {
+            el.mask.emit("fadein");
             sceneSelector.setAttribute("template", "src: src/scenes/scene_selector_page.html");
           }          
         },
@@ -235,7 +236,6 @@
               el.collided = 0;
               el.removeEventListener('collide', collision);
             }
-            
           });
         },
 
@@ -447,11 +447,9 @@
           el.scaleClone = null;
           this.el.addEventListener("stretch-start", function(event) {
             el.scaleClone = new THREE.Vector3( event.detail.target.object3D.scale.x, event.detail.target.object3D.scale.y, event.detail.target.object3D.scale.z );
-            console.log(event.detail.target.object3D);
           })
 
           this.el.addEventListener("stretch-end", function(event) {
-            console.log(event.detail.target.object3D.scale);
             el.removeAttribute("dynamic-body");
             el.setAttribute("dynamic-body", "shape: box; mass: 3");
           })
@@ -477,7 +475,6 @@
       AFRAME.registerComponent("add-sauce", {
         init: function () {
           var el =this.el;
-          console.log(el);
         },
 
         tick: function (time, timeDelta) {
@@ -673,7 +670,6 @@
             var collision = pizzaBB.intersectsBox(ovenBB);
 
             if (collision) {
-              console.log("hello");
               el.isInside= true;
               el.pizza = pizza;
             }
@@ -712,12 +708,10 @@
     
   </head>
   <body>
-    <a-scene physics="debug: true;">
+    <a-scene physics>
       <a-assets>
-        <a-asset-item id="knife-gltf" src="assets/models/knife2.gltf"></a-asset-item>
         <a-asset-item id="kitchen-parts-gltf" src="assets/models/kitchen2.gltf"></a-asset-item>
         <a-asset-item id="kitchen-gltf" src="assets/models/kitchen1.gltf"></a-asset-item>
-        <a-asset-item id="sandwich-gltf" src="assets/models/SANDWICH_REVAMPED.gltf"></a-asset-item>
 
         <img id="instructions-png" class="scene1 scene2 scene3" src="assets/images/instructions.png">
         <img id="instructions_scene1_1-png" class="scene1" src="assets/images/instructions_scene1_1.png">
@@ -753,25 +747,30 @@
         </a-mixin>
       </a-assets>
 
-      <a-entity id="#camera-rig" position="0 0 3" rotation="0 0 0">
+      <a-entity id="#camera-rig" position="0 0 3" movement-controls>
         <a-camera id="#head" look-controls wasd-controls>
           <a-cursor
-            progressive-controls
             fuse="true"
             fusetimeout="500"
             position="0 0 -1"
             geometry="primitive: ring; radiusInner: 0.005; radiusOuter: 0.006"
             material="color: black; shader: flat">
           </a-cursor>
+          <a-sky id="mask" color="#111" opacity="0" radius="0.25" position="0 0.125 0"
+            animation__fadeout="property: material.opacity; startEvents: fadeout; from: 0; to: 1; dur: 5000"
+            animation__fadein="property: material.opacity; startEvents: fadein; from: 1; to: 0; dur: 5000">
+          </a-sky>
         </a-camera>
-        <a-entity id="#rhand" mixin="physics-hand" hand-controls="hand: right"></a-entity>
-        <a-entity id="#lhand" mixin="physics-hand" hand-controls="hand: left"></a-entity>
+        <a-entity id="#rhand" mixin="physics-hand" blink-controls hand-controls="hand: right"></a-entity>
+        <a-entity id="#lhand" mixin="physics-hand" blink-controls hand-controls="hand: left"></a-entity>
       </a-entity>
-
-      <a-entity id="scene-selector" template="src: src/scenes/scene_selector_page.html"></a-entity>
       
-      <a-plane static-body rotation="90 0 0" geometry="width: 100; height: 100" scale="1000 1000 1000" position="0 0.05 0"></a-plane>
-      <a-entity environment></a-entity>
+      <a-entity id="scene-selector" template="src: src/scenes/scene_selector_page.html">
+
+      </a-entity>
+      
+      <a-plane static-body rotation="90 0 0" geometry="width: 100; height: 100" scale="10 10 10" position="0 0.05 0"></a-plane>
+      <a-entity environment></a-entity>      
     </a-scene>
     
   </body>
