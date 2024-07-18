@@ -21,7 +21,7 @@
     <a-entity id="#door" scale="0.24 0.31 0.357" position="-32.86938 4.939 -13.26316">
         <a-entity id="oven-button" ui-button scale="30 30 30" position="2.295 36.714 19.291" rotation="90 90 0" start-oven></a-entity>
         <a-entity gltf-part="src: #kitchen-parts-gltf; part: Object_54" position="0 27.784 0">
-            <a-box visible="false"  geometry="depth: 50; height: 43; width: 4" static-body="shape: none" shape__main="halfExtents: 0.05 0.35 0.9" position="0 -6 0"></a-box>
+            <a-box visible="false" geometry="depth: 50; height: 43; width: 4" static-body="shape: none" shape__main="halfExtents: 0.05 0.35 0.9" position="0 -6 0"></a-box>
         </a-entity>
         <a-entity id="#handle" scale="0.9 0.9 0.5" gltf-part="src: #kitchen-parts-gltf; part: Object_100" open-oven position="5.697 34.910 6.869"></a-entity>
     </a-entity>
@@ -64,6 +64,7 @@
     position="0.5 0.6 -1.1">
     <a-entity id="#sauce" 
         visible="false" material="color: red" 
+        position="0 0.15 0"
         geometry="primitive: cylinder; radius: 0.175; height: 0.25" 
         ></a-entity>
 </a-cylinder>
@@ -77,6 +78,7 @@
     position="1 0.52 -0.8">
     <a-entity id="#sauce" 
         visible="false" material="color: red" 
+        position="0 0.15 0"
         geometry="primitive: cylinder; radius: 0.175; height: 0.25" 
         ></a-entity>
 </a-cylinder>
@@ -90,6 +92,7 @@
     position="1.4 0.8 -1">
     <a-entity id="#sauce" 
         visible="false" material="color: red" 
+        position="0 0.15 0"
         geometry="primitive: cylinder; radius: 0.175; height: 0.25" 
         ></a-entity>
 </a-cylinder>
@@ -103,20 +106,7 @@
     position="1.3 0.52 -1.3">
     <a-entity id="#sauce" 
         visible="false" material="color: red" 
-        geometry="primitive: cylinder; radius: 0.175; height: 0.25" 
-        ></a-entity>
-</a-cylinder>
-
-<a-cylinder 
-    mixin="interactable"
-    
-    color="#DBA24A" geometry="radius: 0.2; height: 0.25" 
-    dynamic-body="shape: box; mass: 3" body-merger="dynamic-body" 
-    scale="1.7 0.1 1.7"
-    position="2.3 2.52 -2.3">
-    <a-entity id="#sauce" 
-        visible="true" material="color: red" 
-        position="0 0.2 0"
+        position="0 0.15 0"
         geometry="primitive: cylinder; radius: 0.175; height: 0.25" 
         ></a-entity>
 </a-cylinder>
@@ -169,5 +159,4 @@
     <a-cylinder mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; height: 0.03;" position="0 -0.12 0"></a-cylinder>
     <a-sphere mixin="interactable" color="darkred" base="place: both; color: pink" geometry="radius: 0.1; theta-start: 90; theta-length: 90" position="0 -0.125 0"></a-sphere>
 </a-entity>
-
 

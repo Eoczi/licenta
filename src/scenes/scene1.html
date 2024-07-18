@@ -11,7 +11,7 @@
 
 <a-box id="#table" position="0 0.375 -3" geometry="width: 3; depth: 2; height: 0.75" color="grey">
     <a-box id="#table-top" static-body position="0 0.525 0" geometry="width: 4; depth: 3; height: 0.15" color="grey"></a-box>
-    <a-box static-body geometry="width: 3; depth: 2; height: 0.5" visible="false"></a-box>
+    <a-box static-body="shape: none" shape__bruh="shape: box; halfExtents: 1.5 1 0.75" geometry="width: 3; depth: 2; height: 0.5" visible="false"></a-box>
 </a-box>
 
 <a-entity id="#kitchen" gltf-model="#kitchen-gltf" scale="0.1 0.05 0.1" position="0 0.07 -3">
@@ -25,7 +25,7 @@
         <a-entity id="#handle" scale="0.9 0.9 0.5" gltf-part="src: #kitchen-parts-gltf; part: Object_100" position="5.697 34.910 6.869"></a-entity>
     </a-entity>
 </a-entity>
-<a-box color="darkgrey" geometry="width: 1.8; height: 0.05; depth: 1.8" static-body  position="-4.237 0.605 -4.346"></a-box>
+<a-box color="darkgrey" geometry="width: 1.8; height: 0.05; depth: 1.8" static-body position="-4.237 0.605 -4.346"></a-box>
 <a-entity id="#kitchen-body" position="0 0.07 -3">
     <a-box id="#inside-oven" material="color: #555555; side: back" geometry="depth: 1.77; height: 0.57; width: 1.77" position="-4.205 0.622 -1.329"></a-box>
     <a-box visible="false" static-body geometry="width: 6.53; depth: 1.81" position="-2.09 0.45085 -4.25387"></a-box>

@@ -17,7 +17,6 @@
     <script src="https://unpkg.com/aframe-template-component@3.2.1/dist/aframe-template-component.min.js"></script>
     <script src="https://unpkg.com/aframe-gltf-part-component/dist/aframe-gltf-part-component.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-particle-system-component@1.1.4/dist/aframe-particle-system-component.min.js"></script>    
-    <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script>
     <script>
       AFRAME.registerComponent('change-scene', {
         schema: {
@@ -171,7 +170,6 @@
             if (sandwichParts.length > 1) {
               sandwichParts = sortByYPosition(sandwichParts);
             }
-            
             if (this.data.scene != 'scene3') {
               if (  
                 sandwichParts.length >= 3 && 
@@ -704,11 +702,69 @@
           })
         }
       })
+
+      AFRAME.registerComponent('add-body', {
+        schema: {
+          bodyType: { default: 'static', oneOf: ['static', 'dynamic'] },
+          shape: {default: 'auto', oneOf: ['auto', 'box', 'cylinder', 'sphere', 'hull', 'mesh', 'none']},
+        },
+
+        init: function() {
+          var el = this.el;
+          var bodyType = this.data.bodyType;
+          var shape = this.data.shape;
+          el.startTimer = 0;
+
+          el.addEventListener('loaded', function (event) {
+            ok = 1;
+            
+          });
+          el.addEventListener("body-loaded", function(event) {
+            var body= event.detail.body;
+            var shape = body.shapes[0];
+            
+            if (shape) {
+              shape.halfExtents.scale({x: 0.5, y: 0.5, z: 0.5});
+              // shape.updateBoundingSphereRadius();
+              // body.updateBoundingRadius();
+              // body.updateMassProperties();
+            }
+          })
+        },
+
+        tick: function(time, timeDelta) {
+          var el = this.el;
+          var bodyType = this.data.bodyType;
+          var shape = this.data.shape;
+
+          if (ok == 1) {
+            el.startTimer = time;
+            ok = 2;
+          }
+          if (time - el.startTimer > 1000 && ok == 2) {
+            if (bodyType == 'static') {
+              el.setAttribute('static-body', 'shape: ' + shape);
+
+            } else if (bodyType == 'dynamic') {
+              el.setAttribute('dynamic-body', 'shape: ' + shape);
+            }
+          }
+          
+        },
+      });
+      AFRAME.registerComponent("log", {
+        init: function() {
+          this.el.addEventListener("body-loaded", function (event) {
+            this.el.body.updateConvexPolyhedronRepresentation();
+          })
+        }
+      })
     </script>
+    
     
   </head>
   <body>
-    <a-scene physics>
+    <a-scene physics="debug: true">
       <a-assets>
         <a-asset-item id="kitchen-parts-gltf" src="assets/models/kitchen2.gltf"></a-asset-item>
         <a-asset-item id="kitchen-gltf" src="assets/models/kitchen1.gltf"></a-asset-item>
@@ -761,8 +817,8 @@
             animation__fadein="property: material.opacity; startEvents: fadein; from: 1; to: 0; dur: 5000">
           </a-sky>
         </a-camera>
-        <a-entity id="#rhand" mixin="physics-hand" blink-controls hand-controls="hand: right"></a-entity>
-        <a-entity id="#lhand" mixin="physics-hand" blink-controls hand-controls="hand: left"></a-entity>
+        <a-entity id="#rhand" mixin="physics-hand" hand-controls="hand: right"></a-entity>
+        <a-entity id="#lhand" mixin="physics-hand" hand-controls="hand: left"></a-entity>
       </a-entity>
       
       <a-entity id="scene-selector" template="src: src/scenes/scene_selector_page.html">
