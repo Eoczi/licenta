@@ -158,8 +158,7 @@
                 foods[i].classList.remove("sandwich");
               }
             }
-            var sandwichParts = document.getElementsByClassName("sandwich");;
-
+            var sandwichParts = document.getElementsByClassName("sandwich");
             function sortByYPosition(collection) {
               return Array.from(collection).sort((entityA, entityB) => {
                 const posA = entityA.body.position.y;
@@ -243,7 +242,7 @@
           var cutEntity = el.firstElementChild;
           var cutEntityCopy = cutEntity.cloneNode(false);
           var shapeEls = el.children;
-
+          
           switch (el.collided) {
             case 0:
               var newPos = { x: el.body.position.x + el.widthOffset * shapeEls.length / 2 + 0.05, y: el.body.position.y + 0.05 , z: el.body.position.z}
@@ -294,6 +293,7 @@
               break;
             case 2:
               if (time - el.startTimer > 2000 && el.startTimer != 0) {
+                
                 el.addEventListener('collide', function collision(event) {
                   var collidedEntity = event.detail.body.el;
                   
@@ -303,11 +303,17 @@
                     el.removeEventListener('collide', collision);
                   }
                 });
-                el.collided = 3;
                 el.startTimer = 0;
+                if (shapeEls.length == 1) {
+                  el.collided = 0;
+                }
+                else {
+                  el.collided = 3;
+                }
               }
               break;
           }
+
         }
       });
 
@@ -702,63 +708,6 @@
           })
         }
       })
-
-      AFRAME.registerComponent('add-body', {
-        schema: {
-          bodyType: { default: 'static', oneOf: ['static', 'dynamic'] },
-          shape: {default: 'auto', oneOf: ['auto', 'box', 'cylinder', 'sphere', 'hull', 'mesh', 'none']},
-        },
-
-        init: function() {
-          var el = this.el;
-          var bodyType = this.data.bodyType;
-          var shape = this.data.shape;
-          el.startTimer = 0;
-
-          el.addEventListener('loaded', function (event) {
-            ok = 1;
-            
-          });
-          el.addEventListener("body-loaded", function(event) {
-            var body= event.detail.body;
-            var shape = body.shapes[0];
-            
-            if (shape) {
-              shape.halfExtents.scale({x: 0.5, y: 0.5, z: 0.5});
-              // shape.updateBoundingSphereRadius();
-              // body.updateBoundingRadius();
-              // body.updateMassProperties();
-            }
-          })
-        },
-
-        tick: function(time, timeDelta) {
-          var el = this.el;
-          var bodyType = this.data.bodyType;
-          var shape = this.data.shape;
-
-          if (ok == 1) {
-            el.startTimer = time;
-            ok = 2;
-          }
-          if (time - el.startTimer > 1000 && ok == 2) {
-            if (bodyType == 'static') {
-              el.setAttribute('static-body', 'shape: ' + shape);
-
-            } else if (bodyType == 'dynamic') {
-              el.setAttribute('dynamic-body', 'shape: ' + shape);
-            }
-          }
-          
-        },
-      });
-      AFRAME.registerComponent("log", {
-        init: function() {
-          this.el.addEventListener("body-loaded", function (event) {
-            this.el.body.updateConvexPolyhedronRepresentation();
-          })
-        }
-      })
     </script>
     
     
@@ -787,7 +736,7 @@
           id="physics-hand"
           physics-collider
           collision-filter="collisionForces: false"
-          static-body="shape: sphere; sphereRadius: 0.03"
+          static-body="shape: sphere; sphereRadius: 0.04"
           super-hands="colliderEvent: collisions;
                       colliderEventProperty: els;
                       colliderEndEvent: collisions;
